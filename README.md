@@ -123,12 +123,12 @@ states:
 
 数据类型定义，请参照 [autopy 类图](docs/autopy_class_diagram.md)
 
-![plantuml代理生成的autopy 类图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/autopy/main/docs/simplerpa_class_diagram.md)
+![plantuml代理生成的autopy 类图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/simplerpa/main/docs/simplerpa_class_diagram.md)
 
 
 本文档开头实例中的配置文件，转换之后的实例关系图如下：[autopy 示例对象图](docs/autopy_sample_object_diagram.md)
 
-![plantuml代理生成的autopy 对象图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/autopy/main/docs/simplerpa_sample_object_diagram.md)
+![plantuml代理生成的autopy 对象图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/simplerpa/main/docs/simplerpa_sample_object_diagram.md)
 
 
 ## 待实现
