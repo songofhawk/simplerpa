@@ -2,11 +2,11 @@
 基于图像识别的开源RPA工具，理论上可以支持所有windows软件和网页的自动化
 
 ## 简介
-Autopy是一款python语言编写的开源RPA工具（桌面自动控制工具），用户可以通过配置yaml格式的文件，来实现桌面软件的自动化控制，简化繁杂重复的工作，比如运营人员给用户发消息，打标签，给店铺插旗；项目管理人员采集数据；测试人员实现简单的自动化测试等等。
+SimpleRPA是一款python语言编写的开源RPA工具（桌面自动控制工具），用户可以通过配置yaml格式的文件，来实现桌面软件的自动化控制，简化繁杂重复的工作，比如运营人员给用户发消息，打标签，给店铺插旗；项目管理人员采集数据；测试人员实现简单的自动化测试等等。
 
 ## 为什么是SimpleRPA
 * 这是一个基于MIT协议的开源项目，对商业应用友好
-* 市面上常见的RPA工具，虽然功能强大完善，但基本上都基于过程控制的理念，实际上成了图形化编程工具，面对稍微复杂的场景，就需要编制大量的判断跳转和子流程嵌套；而autopy针对实际RPA场景做出了合理的抽象，虽然使用YAML格式配置，实际上是一种桌面自动控制的DSL，可以更便捷地表达自动化场景。
+* 市面上常见的RPA工具，虽然功能强大完善，但基本上都基于过程控制的理念，实际上成了图形化编程工具，面对稍微复杂的场景，就需要编制大量的判断跳转和子流程嵌套；而SimpleRPA针对实际RPA场景做出了合理的抽象，虽然使用YAML格式配置，实际上是一种桌面自动控制的DSL，可以更便捷地表达自动化场景。
 * 支持配置文件内嵌Python代码，可以实现更灵活的逻辑
 * 基于图像采集、智能匹配和OCR识别，可以支持任何类型的桌面应用，而无需手工分析页面结构。
 
@@ -17,12 +17,12 @@ Autopy是一款python语言编写的开源RPA工具（桌面自动控制工具�
 3. 查找页面上特定的控件（比如某个按钮），对它进行操作（如点击）
 4. 跳转到下一个页面，回到步骤1，反复循环，直到最终页面出现
 
-Autopy把这个过程，抽象为一个状态机模型：每个页面是一个状态（state），通过“action”触发，可以跳转到下一个状态；
+SimpleRPA把这个过程，抽象为一个状态机模型：每个页面是一个状态（state），通过“action”触发，可以跳转到下一个状态；
 在每一个State内部，可以做check（检查是否需要的页面），可以find（查找特定控件，或者收集信息）；
 针对find的结果，还可以形成子状态，来实现复杂的操作。
 
 ## 示例
-Autopy的自动化脚本，由一个yaml配置文件，和子文件夹构成，文件夹中通常存放要查找的图像模板。
+SimpleRPA的自动化脚本，由一个yaml配置文件，和子文件夹构成，文件夹中通常存放要查找的图像模板。
 
 ### 示例1——自动刷新页面
 一个简单的配置文件示例如下：
@@ -75,7 +75,7 @@ transition的wait表示动作执行以后，等待的时间。
 
 ### 示例2——
 自动归档trello任务。一个典型的trello归档页面如下：
-![trello看板归档](autopy/conf/auto_trello/trello.png)
+![trello看板归档](simplerpa/conf/auto_trello/trello.png)
 
 下面的脚本，可以帮用户自动归档所有已完成的任务。
 
@@ -119,16 +119,16 @@ states:
 
 
 ## 配置类
-实际上，每个配置项，都有对应的数据类型定义，autopy读取配置文件的时候，会通过objtyping把yaml数据转换为对应的类实例。
+实际上，每个配置项，都有对应的数据类型定义，SimpleRPA读取配置文件的时候，会通过objtyping把yaml数据转换为对应的类实例。
 
-数据类型定义，请参照 [autopy 类图](docs/autopy_class_diagram.md)
+数据类型定义，请参照 [SimpleRPA 类图](docs/simplerpa_class_diagram.md)
 
-![plantuml代理生成的autopy 类图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/simplerpa/main/docs/simplerpa_class_diagram.md)
+![plantuml代理生成的SimpleRPA 类图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/simplerpa/main/docs/simplerpa_class_diagram.md)
 
 
-本文档开头实例中的配置文件，转换之后的实例关系图如下：[autopy 示例对象图](docs/autopy_sample_object_diagram.md)
+本文档开头实例中的配置文件，转换之后的实例关系图如下：[SimpleRPA 示例对象图](docs/simplerpa_sample_object_diagram.md)
 
-![plantuml代理生成的autopy 对象图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/simplerpa/main/docs/simplerpa_sample_object_diagram.md)
+![plantuml代理生成的SimpleRPA 对象图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/simplerpa/main/docs/simplerpa_sample_object_diagram.md)
 
 
 ## 待实现
