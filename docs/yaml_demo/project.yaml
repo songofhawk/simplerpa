@@ -1,0 +1,11 @@
+id: 100
+name: "测试项目"
+version: "3.1"
+steps:
+  - id: 18
+    action: "Prepare"
+    expects:
+      - id: 238,
+        result: GOOD
+      - id: 239,
+        result: PERFECT

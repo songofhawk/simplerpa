@@ -1,0 +1,116 @@
+name: "微信获取数据"
+ver: 0.1
+#screen_width: 3440
+#screen_height: 1440
+range: !rect l:0, r:1920, t:0, b:1080
+time_scale: 1
+states:
+  - name: "当前桌面"
+    id: 1
+    find:
+      window:
+        title: "微信"
+        fail_action: raise_error('没有找到微信！')
+    transition:
+      # 点击
+      action:
+        - set_current_window(find_result.hwnd)
+        - wait(1)
+        - wechat = get_window_rect(find_result.hwnd)
+      wait: 0.5
+  - name: "微信聊天窗口"
+    id: 2
+    # 这里简化了操作，假设微信总是处于聊天窗口，也可以增加查找节点，再切换回聊天窗
+    find:
+      image:
+        snapshot: wechat
+        # 直接在整个微信对话框内搜索
+        template: auto_wechat/wechat_logo.png
+        fail_action: raise_error('当前没有处于微信聊天窗口！')
+        result_name: chat_logo
+    transition:
+      # 右击第一个卡片
+      action: click(find_result.center)
+      wait: 1
+  - name: "聊天列表"
+    id: 3
+    action:
+      - move(wechat.snap_right(200).center)
+    find:
+      image:
+        snapshot: wechat
+        # 直接在整个微信对话框内搜索
+        template: auto_wechat/group_name.png
+        fail_action: raise_error('没找到【网约沟通】群！')
+        scroll:
+          one_page: -200  # 负数是假设目前看到的是列表顶端，内容向上滚
+          page_count: 20
+    transition:
+      # 右击第一个卡片
+      action: click(find_result.rect_on_screen.center)
+      wait: 2
+  - name: "网约沟通群内容"
+    id: 4
+    action:
+      - chat_rect = ScreenRect(we_chat.left+304, 785, we_chat.top+62, 723)
+      - df = create_dataframe(['time', 'start', 'end', 'price'])
+    find:
+      image:
+        snapshot: chat_rect
+        template: auto_wechat/chat_splitter.png
+        detect_all: True
+      #        debug: True
+      #      scroll:
+      #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
+      #        page_count: 20
+      fail_action: raise_error('没找到对话分割线')
+    foreach:
+      in_items: find_result
+      item: splitter
+      action:
+        - sp_rect = splitter.rect_on_screen
+      sub_states:
+        - id: 40
+          check:
+            image:
+              snapshot: sp_rect.topleft.offset_rect(65,50, 10, 11)
+              template: auto_wechat/angle.png
+              for_not_exist: True
+          find:
+            image:
+              snapshot: sp_rect.topleft.offset_rect(60,45, 87, 176)
+              template: auto_wechat/snapshot_thumbnail.png
+              confidence: 0.5
+          transition:
+            action: click(sp_rect.topleft.offset(60,45, 87, 176))
+        - id: 42
+          check:
+            image:
+              snapshot: ScreenRect.center_expand(500,1200)
+              template: auto_wechat/completed.png
+          find:
+            image:
+              snapshot: ScreenRect.center_expand(500,1200)
+              template: auto_wechat/line_in_snapshot.png
+              detect_all: True
+          for_each:
+            in_items: find_result
+            item: line
+            action:
+              - block = line.rect_on_screen
+              - row_1 = block.snap_bottom(60)
+              - time_str = ocr(row_1)
+              - row_2 = row_1.snap_bottom(50)
+              - start_str = ocr(row_2)
+              - row_3 = row_2.snap_bottom(50)
+              - end_str = ocr(row_3)
+              - row_4 = row_3.snap_bottom(45)
+              - price_str = ocr(row_4)
+              - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str})
+    transition:
+      wait: 1
+  - name: "网约沟通群内容"
+    id: 5
+    action:
+      - df.to_excel('./result.xlsx')
+

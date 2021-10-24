@@ -1,0 +1,32 @@
+name: "浏览器打开网页"
+ver: 0.1
+#screen_width: 3440
+#screen_height: 1440
+range: !rect l:0, r:1920, t:0, b:1080
+time_scale: 1
+states:
+  - name: "切换当前窗口"
+    id: 1
+    transition:
+      # 点击
+      action: hotkey('alt', 'tab')
+      wait: 1
+  - name: "点击地址栏"
+    id: 2
+    transition:
+      # 右击第一个卡片
+      action: click(300, 60)
+      wait: 3
+  - name: "输入地址"
+    id: 3
+    transition:
+      # 右击第一个卡片
+      action: type('http://www.baidu.com')
+      wait: 2
+  - name: "点击回车键"
+    id: 4
+    transition:
+      # 右击第一个卡片
+      action: press('enter')
+      wait: 1
+

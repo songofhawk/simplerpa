@@ -1,0 +1,113 @@
+name: "整理钉钉周报内容到记事本"
+#ver: 0.1
+#screen_width: 1920
+#screen_height: 1080
+#range: !rect l:0, r:1000, t:0, b:800
+#time_scale: 1
+states:
+  - name: "桌面"
+    id: 1
+    check:
+      - image:
+          snapshot: !rect l:160, r:200, t:160, b:200
+          template: states/1/dingding_logo.png
+          confidence: 0.8
+        fail_action: raise_error('找不到钉钉图标')
+      - image:
+          snapshot: !rect l:160, r:200, t:160, b:200
+          template: states/1/notepad_logo.png
+        fail_action: raise_error('找不到记事本图标')
+    transition:
+      # 打开记事本
+      action: DbClick($check_result[1].center_x, $check_result[1].center_y)
+      wait: 5
+      to: next
+
+  - name: "记事本主界面"
+    id: 2
+    check:
+      image:
+        snapshot: !rect l:10, r:20, t:25, b:35
+        template: states/2/notepad_title.png
+      fail_action: raise_error('没能成功启动记事本')
+    transition:
+      # 打开钉钉
+      action: DbClick($state[1].check_result[0].center_x, $state[1].check_result[0].center_y)
+      wait: 5
+
+  - name: "钉钉主界面"
+    id: 3
+    check:
+      image:
+        snapshot: !rect l:10, r:20, t:25, b:35
+        template: states/2/tzding_logo.png
+      fail_action: raise_error('没能成功启动钉钉,或者当前企业不是天助定')
+    find:
+      image:
+        snapshot: !rect l:30, r:120, t:35, b:800
+        template: states/2/work_report.png
+      scroll:
+        one_page: 200
+        page_count: 5
+      fail_action: raise_error('没找到工作汇报消息')
+      transition:
+        action: Click($find_result.center_x, $find_result.rect.bottom)
+        wait: 2
+
+  - name: "工作台日志列表"
+    id: 4
+    check:
+      ocr:
+        # "看日志" 文本
+        snapshot: !rect l:30, r:50, t:35, b:55
+        text: "看日志"
+      fail_action: raise_error('没能成功进入日志列表页面')
+    find:
+      #      image:
+      #        # "已读" "未读" 标记 作为行标识
+      #        snapshot: !rect l:80, r:120, t:55, b:800
+      #        template:
+      #          - states/3/read.png
+      #          - states/3/unread.png
+      #        strategy: any
+      image:
+        # 查找"的周报"标记, 作为行标识
+        snapshot: !rect l:70, r:90, t:55, b:800
+        template: states/3/work_report_text_snippet.png
+      find_all: True
+      fail_action: raise_error('没找到任何人的周报')
+      transition:
+        foreach: row in $find_result
+        action: Click($row.rect.left - 50, $row.center_y)
+        wait: 1
+        sub_states:
+          - name: "某人的日报内容"
+            id: 40
+            transition:
+              action: RightClick(240, 180)
+              wait: 0.3
+          - name: "某人的日报内容上覆盖右键菜单"
+            id: 41
+            find:
+              image:
+                snapshot: !rect l:$mouse.x, r:$mouse.x + 50, t:$mouse.y, b:$mouse.y + 100
+                template: states/30/context_select_all.png
+              transition:
+                action: Click($find_result.center_x, $find_result.center_y)
+                wait: 0.2
+          - name: "某人的日报内容全选"
+            id: 42
+            action: HotKey("ctrl","c")
+            transition:
+              action: HotKey("alt","tab")
+              wait: 0.2
+          - name: "记事本在最前"
+            id: 43
+            action:
+              - HotKey("ctrl","v")
+              - HotKey("return")
+            transition:
+              # 最后切换回钉钉在最前, 这里如果不放心, 可以加一个状态检查
+              action: HotKey("alt","tab")
+              wait: 0.2
+

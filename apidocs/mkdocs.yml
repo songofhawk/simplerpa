@@ -1,0 +1,17 @@
+site_name: simplerpa
+
+nav:
+  - 首页: index.md
+  - 参考手册: api_reference.md
+  - 历史: history.md
+
+# theme: readthedocs
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+          python:
+            setup_commands:
+              - import sys
+              - sys.path.insert(0, "..")

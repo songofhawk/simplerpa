@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project>
+    <id datatype="int">100</id>: 100
+    <name datatype="string">测试项目</name>
+    <version datatype="string">3.1</version>
+    <steps>
+        <step>
+            <id datatype="int">18</id>,
+            <action datatype="string">Prepare</action>,
+            <expects>
+                <step>
+                    <id datatype="int">238</id>
+                    <result datatype="ResultType">GOOD</result>
+                </step>
+                <step>
+                    <id datatype="int">239</id>
+                    <result datatype="ResultType">PERFECT</result>
+                </step>
+            </expects>
+        </step>
+    </steps>
+</project>

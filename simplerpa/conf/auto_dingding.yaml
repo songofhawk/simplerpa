@@ -1,0 +1,185 @@
+name: "整理钉钉周报内容到记事本"
+ver: 1
+#screen_width: 3440
+#screen_height: 1440
+range: !rect l:0, r:1000, t:0, b:800
+time_scale: 1
+states:
+  - name: "当前窗口"
+    id: 0
+    transition:
+      # 显示桌面的热键
+      action: hotkey('win', 'd')
+      wait: 1
+  - name: "桌面"
+    id: 1
+    find:
+      image:
+        snapshot: !rect l:210, r:316, t:468, b:593
+        template: auto_dingding/notepad_logo.png
+#        debug: True
+      fail_action: raise_error('找不到记事本图标')
+    transition:
+      # 双击记事本图标
+      action: dbclick(find_result.rect_on_screen.center_x, find_result.rect_on_screen.center_y)
+      wait: 1
+
+  - name: "记事本主界面"
+    id: 2
+#    check:
+#      ocr:
+#        snapshot: !rect l:1055, r:1097, t:3, b:30
+#        template: auto_dingding/notepad_title.png
+#        # ocr本来不需要源图，这里放一个模板，是为了给人一个参照
+#        text: 记事本
+#      fail_action: raise_error('没能成功启动记事本')
+    find:
+      image:
+        snapshot: !rect l:213, r:320, t:310, b:440
+        template: auto_dingding/dingding_logo.png
+      fail_action: raise_error('找不到钉钉图标')
+    transition:
+      # 双击钉钉图标
+      action: dbclick(find_result.rect_on_screen.center_x, find_result.rect_on_screen.center_y)
+      wait: 5
+
+  - name: "钉钉主界面"
+    id: 3
+    check:
+      - window:
+          win_class: StandardFrame_DingTalk
+          debug: True
+        fail_action: locate_state('没有找到钉钉窗口')
+    find:
+      window:
+        title: 钉钉
+        debug: True
+      fail_action: raise_error('没有找到钉钉窗口')
+    transition:
+      action:
+        - wait(2)
+        - set_window_pos(find_result.hwnd, 0, 0, 1024, 768)
+      wait: 3
+
+  - name: "钉钉主界面已放置左上角"
+    id: 4
+    check:
+      - image:
+          snapshot: !rect l:9, r:58, t:42, b:86
+          template: auto_dingding/tzding_logo_on_dingding.png
+        #         debug: True
+        fail_action: raise_error('没能成功启动钉钉,或者当前企业不是天助定')
+      - color:
+          pos: (12,92)
+          color: (209, 211, 213)
+          debug: True
+        fail_action: locate_state('当前不在钉钉首页')
+    find:
+      image:
+        snapshot: !rect l:70, r:250, t:76, b:760
+        template: auto_dingding/work_report.png
+      #        debug: True
+      scroll:
+        one_page: -200  # 负数是假设目前看到的是列表顶端，内容向上滚
+        page_count: 20
+      fail_action: raise_error('没找到工作汇报消息')
+    transition:
+      action: click(find_result.rect_on_screen.center_x, find_result.rect_on_screen.bottom)
+      wait: 1
+
+  - name: "工作台日志列表"
+    id: 5
+    check:
+      ocr:
+        # "看日志" 文本
+        snapshot: !rect l:75, r:137, t:129, b:157
+        text: "看日志"
+#        debug: True
+      fail_action: raise_error('没能成功进入日志列表页面')
+    find:
+      #      image:
+      #        # "已读" "未读" 标记 作为行标识
+      #        snapshot: !rect l:80, r:120, t:55, b:800
+      #        template:
+      #          - states/3/read.png
+      #          - states/3/unread.png
+      #        strategy: any
+      image:
+        # 查找"周报"标记, 作为行标识
+        snapshot: !rect l:65, r:298, t:221, b:761
+        template: auto_dingding/work_report_text_snippet.png
+        confidence: 0.8
+        keep_clip: result.rect_on_image.snap_left(45)
+      #        debug: True
+      find_all: True
+      scroll:
+        one_page: -800  # 负数是假设目前看到的是列表顶端，内容向上滚
+        page_count: 1
+        find_mode: all
+      fail_action: raise_error('没找到任何人的周报')
+    foreach:
+      in_items: find_result
+      item: week_report
+      action:
+        - x = ocr(week_report.clip)
+        - copy(x)
+        - hotkey("alt","tab")
+        - wait(0.5)
+        - hotkey("ctrl","v")
+        - wait(0.8)
+        - hotkey("alt","tab")
+        - wait(0.5)
+        #        - print(week_report.rect_on_screen)
+        - snapshot_rect = ScreenRect(65, 298, 221, 761)
+        - snapshot_image = snapshot(snapshot_rect)
+        #        - print(snapshot_image.shape)
+        #        - print(week_report.clip.shape)
+        #        - log_image("snapshot", snapshot_image)
+        #        - log_image("clip", week_report.clip)
+        - clip_rect = find_template(snapshot_image, week_report.clip).rect
+        - clip_on_screen = clip_rect.offset_from(snapshot_rect)
+        #        - print(x)
+        #        - print(clip_on_screen.center_x, clip_on_screen.center_y)
+        - click(clip_on_screen.center_x, clip_on_screen.center_y)
+        - wait(1)
+      sub_states:
+        - name: "某人的日报内容"
+          id: 40
+          transition:
+            wait_before: 2
+            action: rightclick(500, 400)
+            wait: 0.3
+        - name: "某人的日报内容上覆盖右键菜单"
+          id: 41
+          find:
+            image:
+              snapshot: !rect l:mouse.x, r:mouse.x + 200, t:mouse.y, b:mouse.y + 170
+              template: auto_dingding/context_select_all.png
+              #              debug: True
+              fail_action: raise_error('没找到右键菜单中的全选项')
+          transition:
+            action: click(find_result.rect_on_screen.center_x, find_result.rect_on_screen.center_y)
+            wait: 0.2
+        - name: "某人的日报内容全选"
+          id: 42
+          action:
+            - hotkey("ctrl","c")
+          transition:
+            wait_before: 1.5
+            action: hotkey("alt","tab")
+            wait: 1.5
+        - name: "记事本在最前"
+          id: 43
+          action:
+            - print("粘贴 {} 的日志信息".format(x))
+            - type('--------------')
+            - hotkey("ctrl","v")
+            - hotkey("enter")
+            - hotkey("enter")
+            - hotkey("enter")
+          transition:
+            # 最后切换回钉钉在最前, 这里如果不放心, 可以加一个状态检查
+            wait_before: 1.5
+            action: hotkey("alt","tab")
+            wait: 1.5
+

@@ -1,0 +1,65 @@
+name: "自动归档Trello"
+ver: 0.5
+#screen_width: 3440
+#screen_height: 1440
+range: !rect l:0, r:1920, t:0, b:1080
+time_scale: 1
+states:
+  - name: "切换焦点"
+    id: 1
+    transition:
+      # 点击
+      action: hotkey('alt', 'tab')
+      wait: 1.5
+  - name: "浏览器PingCode页面"
+    id: 2
+    check:
+      - image:
+          snapshot: !rect l:0, r:60, t:113, b:182
+          template: auto_pingcode/detect_pingcode.png
+          # debug: True
+        fail_action: raise_error('当前页面不是PingCode')
+      - image:
+          snapshot: !rect l:66, r:317, t:105, b:204
+          template: auto_pingcode/detect_in_sprint.png
+          # debug: True
+        fail_action: raise_error('当前不在特定迭代中')
+      - image:
+          snapshot: !rect l:279, r:410, t:150, b:203
+          template: auto_pingcode/detect_brief.png
+          # debug: True
+        fail_action: raise_error('当前标签页不是概览')
+    transition:
+      to: next
+  - name: "概览"
+    id: 3
+    action: wait(300)
+    find:
+      image:
+        snapshot: !rect l:70, r:699, t:156, b:195
+        template: auto_pingcode/find_workitem.png
+        # debug: True
+      fail_action: raise_error('没找到"工作项"标签页标题')
+    transition:
+      action: click(find_result.rect_on_screen.center_x, find_result.rect_on_screen.center_y)
+  - name: "工作项"
+    id: 4
+    action: wait(120)
+    find:
+      image:
+        snapshot: !rect l:70, r:699, t:156, b:195
+        template: auto_pingcode/find_task.png
+      fail_action: raise_error('没找到"任务板"标签页标题')
+    transition:
+      action: click(find_result.rect_on_screen.center_x, find_result.rect_on_screen.center_y)
+  - name: "任务板"
+    id: 5
+    action: wait(120)
+    find:
+      image:
+        snapshot: !rect l:70, r:699, t:156, b:195
+        template: auto_pingcode/find_brief.png
+      fail_action: raise_error('没找到"概览"标签页标题')
+    transition:
+      action: click(find_result.rect_on_screen.center_x, find_result.rect_on_screen.center_y)
+      to: 3

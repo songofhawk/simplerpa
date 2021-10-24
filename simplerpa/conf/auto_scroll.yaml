@@ -1,0 +1,17 @@
+name: "测试scroll的使用"
+ver: 0.1
+#screen_width: 3440
+#screen_height: 1440
+range: !rect l:0, r:1000, t:0, b:800
+time_scale: 1
+states:
+  - name: "当前窗口"
+    id: 0
+    find:
+      image:
+        snapshot: !rect l:70, r:250, t:76, b:760
+        template: auto_dingding/work_report.png
+      scroll:
+        one_page: -500
+        page_count: 3
+      fail_action: raise_error('没找到工作汇报消息')
