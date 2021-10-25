@@ -154,10 +154,16 @@ class Executor:
         :param find:
         :return:
         """
+        if find is None:
+            return True
+
         results, flow_control_fail_action = self._get_find_result(find, True)
-        if len(results>0):
+        if len(results) > 0:
             if save_result:
-                Action.save_call_env({FIND_RESULT: results})
+                if len(results) > 1:
+                    Action.save_call_env({FIND_RESULT: results})
+                else:
+                    Action.save_call_env({FIND_RESULT: results[0]})
             return True
 
         if flow_control_fail_action is not None:
@@ -181,7 +187,7 @@ class Executor:
         :return fail_actions: 如果没通过,对应和状态迁移相关的fail_action
         """
         if find is None:
-            return True, None
+            return [], None
 
         flow_control_fail_action = None
         results = []
@@ -223,4 +229,3 @@ class Executor:
         self._current_state = None
         self._current_index = None
         return False
-

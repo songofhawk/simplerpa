@@ -110,7 +110,7 @@ class Find:
             # 如果滚动的时候，找到即返回，那么就检查detect_res是否为None
             # 如果滚动到指定页数，返回所有找到的结果，那么就不用检查detect_res了
             detect_res = detection.do()
-            list_util.append_to(list, detect_res)
+            list_util.append_to(results, detect_res)
             page += 1
             if self.scroll:
                 time.sleep(1)

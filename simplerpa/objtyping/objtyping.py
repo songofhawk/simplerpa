@@ -112,7 +112,7 @@ def from_dict_list(dict_list_obj, clazz: T, reserve_extra_attr=True, init_empty_
 
 def is_basic_type(obj):
     if isinstance(obj, str) or \
-            isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, complex):
+            isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, bool) or isinstance(obj, complex):
         return True
     else:
         return False

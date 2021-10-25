@@ -60,6 +60,7 @@ class Action:
         'locate_state': ActionError.locate_state,
         'set_window_pos': ActionWindow.set_window_pos,
         'get_window_rect': ActionWindow.get_window_rect,
+        'set_current_window': ActionWindow.set_current_window,
         'create_dataframe': ActionExcel.create_dataframe,
     }
 
