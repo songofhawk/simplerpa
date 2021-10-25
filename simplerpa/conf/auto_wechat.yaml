@@ -52,14 +52,13 @@ states:
   - name: "网约沟通群内容"
     id: 4
     action:
-      - chat_rect = ScreenRect(wechat.left+304, 785, wechat.top+62, 723)
       - df = create_dataframe(['time', 'start', 'end', 'price'])
     find:
       image:
-        snapshot: chat_rect
+        snapshot: ScreenRect(wechat.left+304, wechat.left+785, wechat.top+62, wechat.top+723)
         template: auto_wechat/chat_splitter.png
         detect_all: True
-      #        debug: True
+        debug: True
       #      scroll:
       #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
       #        page_count: 20

@@ -93,7 +93,7 @@ class ScreenRect(object):
             return self
 
         if self.exp is not None:
-            temp_rect =self.exp.evaluate_exp()
+            temp_rect = self.exp.evaluate_exp()
             self.left = temp_rect.left
             self.right = temp_rect.right
             self.top = temp_rect.top
