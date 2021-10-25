@@ -1,22 +1,9 @@
 import pyautogui
 
-
-class MousePosition(object):
-    """
-    表示鼠标位置的数据结构
-    Attributes:
-        x (int): x坐标
-        y (int): y坐标
-    """
-    x: int
-    y: int
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+from simplerpa.core.data.ScreenRect import ScreenPoint
 
 
-def click(x, y):
+def click(x, y=None):
     """
     鼠标点击，可以指定点击的位置
     Args:
@@ -26,10 +13,14 @@ def click(x, y):
     Returns:
         None
     """
-    pyautogui.click(int(x), int(y))
+    if isinstance(x, ScreenPoint):
+        p = x
+        pyautogui.click(p.x, p.y)
+    else:
+        pyautogui.click(int(x), int(y))
 
 
-def dbclick(x, y):
+def dbclick(x, y=None):
     """
     鼠标双击，可以指定点击的位置
     Args:
@@ -39,10 +30,14 @@ def dbclick(x, y):
     Returns:
         None
     """
-    pyautogui.doubleClick(int(x), int(y))
+    if isinstance(x, ScreenPoint):
+        p = x
+        pyautogui.doubleClick(p.x, p.y)
+    else:
+        pyautogui.doubleClick(int(x), int(y))
 
 
-def move(x, y):
+def move(x, y=None):
     """
     移动鼠标指针到指定的位置
     Args:
@@ -52,11 +47,14 @@ def move(x, y):
     Returns:
         None
     """
+    if isinstance(x, ScreenPoint):
+        p = x
+        pyautogui.moveTo(p.x, p.y)
+    else:
+        pyautogui.moveTo(int(x), int(y), duration=0.25)
 
-    pyautogui.moveTo(int(x), int(y), duration=0.25)
 
-
-def rightclick(x, y):
+def rightclick(x, y=None):
     """
     鼠标右键点击，可以指定点击的位置
     Args:
@@ -66,11 +64,14 @@ def rightclick(x, y):
     Returns:
         None
     """
+    if isinstance(x, ScreenPoint):
+        p = x
+        pyautogui.rightClick(p.x, p.y)
+    else:
+        pyautogui.rightClick(int(x), int(y))
 
-    pyautogui.rightClick(int(x), int(y))
 
-
-def drag(x, y):
+def drag(x, y=None):
     """
     鼠标从当前位置，拖拽到指定的位置
     Args:
@@ -80,8 +81,11 @@ def drag(x, y):
     Returns:
         None
     """
-
-    pyautogui.dragTo(int(x), int(y), 0.5)
+    if isinstance(x, ScreenPoint):
+        p = x
+        pyautogui.dragTo(p.x, p.y, 0.5)
+    else:
+        pyautogui.dragTo(int(x), int(y), 0.5)
 
 
 def scroll(clicks):
@@ -105,4 +109,4 @@ def position():
     """
 
     pos = pyautogui.position()
-    return MousePosition(pos[0], pos[1])
+    return ScreenPoint(pos[0], pos[1])

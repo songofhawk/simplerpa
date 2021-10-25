@@ -30,21 +30,21 @@ states:
         result_name: chat_logo
     transition:
       # 右击第一个卡片
-      action: click(find_result.center)
+      action: click(find_result.rect_on_screen.center)
       wait: 1
   - name: "聊天列表"
     id: 3
     action:
-      - move(wechat.snap_right(200).center)
+      - move(wechat.snap_right(30).center)
     find:
       image:
         snapshot: wechat
         # 直接在整个微信对话框内搜索
         template: auto_wechat/group_name.png
-        fail_action: raise_error('没找到【网约沟通】群！')
-        scroll:
-          one_page: -200  # 负数是假设目前看到的是列表顶端，内容向上滚
-          page_count: 20
+      fail_action: raise_error('没找到【网约沟通】群！')
+      scroll:
+        one_page: -200  # 负数是假设目前看到的是列表顶端，内容向上滚
+        page_count: 20
     transition:
       # 右击第一个卡片
       action: click(find_result.rect_on_screen.center)
@@ -52,7 +52,7 @@ states:
   - name: "网约沟通群内容"
     id: 4
     action:
-      - chat_rect = ScreenRect(we_chat.left+304, 785, we_chat.top+62, 723)
+      - chat_rect = ScreenRect(wechat.left+304, 785, wechat.top+62, 723)
       - df = create_dataframe(['time', 'start', 'end', 'price'])
     find:
       image:

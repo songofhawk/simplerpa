@@ -1,8 +1,6 @@
 import inspect
 from typing import get_type_hints, TypeVar
 
-import typing
-
 
 class DataObject(object):
     pass
@@ -28,15 +26,15 @@ def has_init_argument(clazz):
     return False
 
 
-T = TypeVar('T')
-
-
 def _parse_tuple_str(tuple_str):
     striped_str = tuple_str.strip()
     if striped_str.startswith('(') and striped_str.endswith(')'):
         return eval(striped_str, {"__builtins__": {}}, {})
     else:
         raise RuntimeError('需要的项目')
+
+
+T = TypeVar('T')
 
 
 def from_dict_list(dict_list_obj, clazz: T, reserve_extra_attr=True, init_empty_attr=True, reserved_classes=None) -> T:

@@ -1,4 +1,4 @@
-from simplerpa.core.data.Action import Action
+from simplerpa.core.data.Action import Action, Execution
 from simplerpa.core.data.AutoBase import AutoBase
 
 
@@ -22,7 +22,7 @@ class Detection(AutoBase):
     detect_all: bool = False
     for_not_exist: bool = False
     debug: bool = False
-    fail_action: Action = None
+    fail_action: Execution = None
 
     def __init__(self):
         self.project = None

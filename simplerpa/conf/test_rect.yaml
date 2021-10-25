@@ -1,0 +1,7 @@
+name: "测试rect"
+ver: 0.1
+#screen_width: 3440
+#screen_height: 1440
+range: ScreenRect(3,5,8,9)
+#range: !rect l:0, r:1920, t:0, b:1080
+time_scale: 1

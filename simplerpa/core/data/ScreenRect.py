@@ -1,4 +1,4 @@
-from operator import methodcaller
+import re
 
 from ruamel.yaml import yaml_object
 
@@ -12,6 +12,10 @@ class ScreenPoint(object):
         self.y = y
 
     def offset_rect(self, x, y, width, height):
+        """
+        按照x,y偏移左上角位置，
+        按照width, height改变矩形框大小
+        """
         left = self.x + x
         top = self.y + y
         right = left + width
@@ -19,6 +23,9 @@ class ScreenPoint(object):
         return ScreenRect(left, right, top, bottom)
 
     def offset(self, x, y):
+        """
+        大小不变，位置偏移一段距离
+        """
         return ScreenPoint(self.x + x, self.y + y)
 
 
@@ -36,8 +43,13 @@ class ScreenRect(object):
         self.has_exp = False
         if isinstance(left, str):
             self.has_exp = True
-            self.left_exp: Action.Evaluation = Action.Evaluation(left)
             self.left = None
+            if right is None and top is None and bottom is None:
+                # 如果只有第一个参数，其他参数都没有传，说明整个字符串，是一个ScreenRect表达式
+                self.exp = Action.Evaluation(left)
+                self._exp_str = left
+            else:
+                self.left_exp: Action.Evaluation = Action.Evaluation(left)
         else:
             self.left = left
             self.left_exp = None
@@ -74,9 +86,19 @@ class ScreenRect(object):
     def _compute(self):
         self.center_x = (self.left + self.right) / 2
         self.center_y = (self.top + self.bottom) / 2
+        self.center = ScreenPoint(self.center_x, self.center_y)
 
     def evaluate(self):
         if not self.has_exp:
+            return self
+
+        if self.exp is not None:
+            temp_rect =self.exp.evaluate_exp()
+            self.left = temp_rect.left
+            self.right = temp_rect.right
+            self.top = temp_rect.top
+            self.bottom = temp_rect.bottom
+            self._compute()
             return self
 
         if self.left_exp is not None:
@@ -109,11 +131,16 @@ class ScreenRect(object):
 
     @classmethod
     def from_yaml(cls, constructor, node):
-        splits = node.value.split(', ')
-        # test = list(map(lambda x: x + '_sss', splits))
-        v = list(map(lambda x: int(x[1]) if x[1].isdigit() else x[1], map(methodcaller("split", ":"), splits)))
-        # print(v)
-        return cls(left=v[0], right=v[1], top=v[2], bottom=v[3])
+        result = re.search(r"l:(\S*)\s*,\s*r:(\S*)\s*,\s*t:(\S*)\s*,\s*b:(\S*)", node.value)
+        if result is None:
+            raise RuntimeError('ScreenRect string is not formatted well: ""!'.format(node.value))
+        else:
+            v = result.groups()
+            # splits = node.value.split(', ')
+            # test = list(map(lambda x: x + '_sss', splits))
+            # v = list(map(lambda x: int(x[1]) if x[1].isdigit() else x[1], map(methodcaller("split", ":"), splits)))
+            # print(v)
+            return cls(left=v[0], right=v[1], top=v[2], bottom=v[3])
 
     def offset_from(self, other_rect):
         if (isinstance(self.left, float) or isinstance(self.left, int)) \
@@ -131,17 +158,23 @@ class ScreenRect(object):
                 and (isinstance(other_rect.left, float) or isinstance(other_rect.left, int)):
             right = self.right + other_rect.left
         else:
-            raise RuntimeError("left must be an integer or float number for '+' operator")
+            raise RuntimeError("right must be an integer or float number for '+' operator")
         if (isinstance(self.bottom, float) or isinstance(self.bottom, int)) \
                 and (isinstance(other_rect.top, float) or isinstance(other_rect.top, int)):
             bottom = self.bottom + other_rect.top
         else:
-            raise RuntimeError("top must be an integer or float number for '+' operator")
+            raise RuntimeError("bottom must be an integer or float number for '+' operator")
 
         return ScreenRect(left, right, top, bottom)
 
     def snap_left(self, width):
         return ScreenRect(self.left - width, self.left, self.top, self.bottom)
+
+    def snap_right(self, width):
+        return ScreenRect(self.right, self.right+width, self.top, self.bottom)
+
+    def snap_top(self, height):
+        return ScreenRect(self.left, self.right, self.top - height, self.top)
 
     def snap_bottom(self, height):
         return ScreenRect(self.left, self.right, self.bottom, self.bottom + height)
