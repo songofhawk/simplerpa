@@ -131,3 +131,4 @@ log/*
 .vscode/
 /simplerpa/log/
 
+/simplerpa/result.xlsx

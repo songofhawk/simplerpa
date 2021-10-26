@@ -53,8 +53,8 @@ class WindowDetection(Detection):
     """
 
     current_only: True
-    win_class: ScreenRect
-    title: str
+    win_class: str = None
+    title: str = None
 
     def do(self, find_all=False):
         if self.current_only:
@@ -97,6 +97,6 @@ class WindowDetection(Detection):
             else:
                 if self.debug:
                     print('检测窗口成功，预期title:"{}", 预期class:"{}'.format(self.title, self.win_class))
-                ActionWindow.set_current_window(hwnd)
+                # ActionWindow.set_current_window(hwnd)
                 return WindowResult(hwnd)
 

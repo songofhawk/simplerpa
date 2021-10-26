@@ -53,7 +53,7 @@ class Executor:
     #     self._one_state(init_state)
 
     def _one_state(self, the_state):
-        print('enter state "{}"'.format(the_state.name))
+        print('enter state "{}"-{}'.format(the_state.name, the_state.id))
         Action.save_call_env({STATE: the_state})
 
         # check中如果触发了影响流程的fail_action，那么就退出当前状态，直接按照该action指定的状态迁移

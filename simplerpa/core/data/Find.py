@@ -57,34 +57,34 @@ class Find:
             res = self._do_once(self.image, do_fail_action)
             found_any = found_any or (res is not None)
             found_all = found_all and (res is not None)
-            list_util.append_to(results,res)
+            list_util.append_to(results, res)
 
         if self.ocr is not None:
             res = self._do_once(self.ocr, do_fail_action)
             found_any = found_any or (res is not None)
             found_all = found_all and (res is not None)
-            list_util.append_to(results,res)
+            list_util.append_to(results, res)
 
         if self.color is not None:
             res = self._do_once(self.color, do_fail_action)
             found_any = found_any or (res is not None)
             found_all = found_all and (res is not None)
-            list_util.append_to(results,res)
+            list_util.append_to(results, res)
 
         if self.window is not None:
             res = self._do_once(self.window, do_fail_action)
             found_any = found_any or (res is not None)
             found_all = found_all and (res is not None)
-            list_util.append_to(results,res)
+            list_util.append_to(results, res)
 
         if self.find_mode == "All" and found_all:
             if self.result_name is not None:
                 Action.save_call_env({self.result_name: results})
-            return results
+            return results if len(results) > 1 else results[0]
         elif self.find_mode == "Any" and found_any:
             if self.result_name is not None:
                 Action.save_call_env({self.result_name: results})
-            return results
+            return results if len(results) > 1 else results[0]
         else:
             return None
 

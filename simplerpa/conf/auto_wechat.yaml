@@ -9,15 +9,18 @@ states:
     id: 1
     find:
       window:
-        title: "微信"
+        win_class: "WeChatMainWndForPC"
+#        title: "微信"
         fail_action: raise_error('没有找到微信！')
     transition:
       # 点击
       action:
+        - print(find_result.hwnd)
         - set_current_window(find_result.hwnd)
         - wait(1)
         - wechat = get_window_rect(find_result.hwnd)
-      wait: 0.5
+        - print(wechat)
+      wait: 1
   - name: "微信聊天窗口"
     id: 2
     # 这里简化了操作，假设微信总是处于聊天窗口，也可以增加查找节点，再切换回聊天窗
@@ -35,12 +38,13 @@ states:
   - name: "聊天列表"
     id: 3
     action:
-      - move(wechat.snap_right(30).center)
+      - move(wechat.topleft.offset(100,200))
     find:
       image:
         snapshot: wechat
         # 直接在整个微信对话框内搜索
         template: auto_wechat/group_name.png
+#        debug: True
       fail_action: raise_error('没找到【网约沟通】群！')
       scroll:
         one_page: -200  # 负数是假设目前看到的是列表顶端，内容向上滚
@@ -55,7 +59,7 @@ states:
       - df = create_dataframe(['time', 'start', 'end', 'price'])
     find:
       image:
-        snapshot: ScreenRect(wechat.left+304, wechat.left+785, wechat.top+62, wechat.top+723)
+        snapshot: ScreenRect(wechat.left+304, wechat.left+825, wechat.top+62, wechat.top+723)
         template: auto_wechat/chat_splitter.png
         detect_all: True
         debug: True
@@ -70,6 +74,7 @@ states:
         - sp_rect = splitter.rect_on_screen
       sub_states:
         - id: 40
+          name: 非文字聊天
           check:
             image:
               snapshot: sp_rect.topleft.offset_rect(65,50, 10, 11)
@@ -83,6 +88,7 @@ states:
           transition:
             action: click(sp_rect.topleft.offset(60,45, 87, 176))
         - id: 42
+          name: 有项目可以接受
           check:
             image:
               snapshot: ScreenRect.center_expand(500,1200)
