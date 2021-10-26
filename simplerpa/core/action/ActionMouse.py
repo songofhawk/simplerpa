@@ -1,6 +1,6 @@
 import pyautogui
 
-from simplerpa.core.data.ScreenRect import ScreenPoint
+from simplerpa.core.data.ScreenRect import Vector
 
 
 def click(x, y=None):
@@ -13,7 +13,7 @@ def click(x, y=None):
     Returns:
         None
     """
-    if isinstance(x, ScreenPoint):
+    if isinstance(x, Vector):
         p = x
         pyautogui.click(p.x, p.y)
     else:
@@ -30,7 +30,7 @@ def dbclick(x, y=None):
     Returns:
         None
     """
-    if isinstance(x, ScreenPoint):
+    if isinstance(x, Vector):
         p = x
         pyautogui.doubleClick(p.x, p.y)
     else:
@@ -47,7 +47,7 @@ def move(x, y=None):
     Returns:
         None
     """
-    if isinstance(x, ScreenPoint):
+    if isinstance(x, Vector):
         p = x
         pyautogui.moveTo(p.x, p.y)
     else:
@@ -64,7 +64,7 @@ def rightclick(x, y=None):
     Returns:
         None
     """
-    if isinstance(x, ScreenPoint):
+    if isinstance(x, Vector):
         p = x
         pyautogui.rightClick(p.x, p.y)
     else:
@@ -81,7 +81,7 @@ def drag(x, y=None):
     Returns:
         None
     """
-    if isinstance(x, ScreenPoint):
+    if isinstance(x, Vector):
         p = x
         pyautogui.dragTo(p.x, p.y, 0.5)
     else:
@@ -109,4 +109,4 @@ def position():
     """
 
     pos = pyautogui.position()
-    return ScreenPoint(pos[0], pos[1])
+    return Vector(pos[0], pos[1])

@@ -96,8 +96,8 @@ class ActionImage:
         return res_list
 
     @classmethod
-    def find_one_template(cls, image_current, image_template, min_confidence=0.5):
-        match_result = ac.find_template(image_current, image_template, min_confidence)
+    def find_one_template(cls, image_source, image_template, min_confidence=0.5):
+        match_result = ac.find_template(image_source, image_template, min_confidence)
         res = cls._change_result(match_result)
         return res
 
@@ -121,3 +121,38 @@ class ActionImage:
         timestamp = time.time()
         cv2.imwrite('{}/{}_{}.png'.format(path_root, name, timestamp), image)
 
+    def find_rect(self, image_source, rect, color, find_all=True):
+        return self.sliding_window(image_source, rect, lambda image_block: self._match_color(image_block, color),
+                                   find_all)
+
+    @staticmethod
+    def sliding_window(image_source, win_rect, handler, find_all=True, step_x=4, step_y=4):
+        rows, cols = image_source.shape
+        win_width = win_rect.x
+        win_height = win_rect.y
+        results = []
+        for row in range(0, rows, step_y):
+            for col in range(0, cols, step_x):
+                image_block = image_source[row:row + win_height, col:col + win_width]
+                passed, res = handler(image_block, row, col)
+                if passed:
+                    result = DataObject()
+                    result.handle_res = res
+                    result.top = row,
+                    result.left = col
+                    if find_all:
+                        results.append(result)
+                    else:
+                        return result
+        return results
+
+    @staticmethod
+    def _match_color(image, color):
+        r, g, b = color
+        image_r = image[:, :, 2]
+        image_g = image[:, :, 1]
+        image_b = image[:, :, 0]
+        r_match = np.all(image_r == r)
+        g_match = np.all(image_g == g)
+        b_match = np.all(image_b == b)
+        return r_match and g_match and b_match, None

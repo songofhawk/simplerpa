@@ -61,7 +61,7 @@ states:
       - df = create_dataframe(['time', 'start', 'end', 'price'])
     find:
       image:
-        snapshot: ScreenRect(wechat.left+304, wechat.left+825, wechat.top+62, wechat.top+723)
+        snapshot: ScreenRect(wechat.left+304, wechat.left+823, wechat.top+65, wechat.top+723)
         template: auto_wechat/chat_splitter.png
         detect_all: True
         debug: True

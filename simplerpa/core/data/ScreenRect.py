@@ -6,7 +6,7 @@ from simplerpa.core.data import Action
 from simplerpa.core.share.yaml import yaml
 
 
-class ScreenPoint(object):
+class Vector(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -26,7 +26,7 @@ class ScreenPoint(object):
         """
         大小不变，位置偏移一段距离
         """
-        return ScreenPoint(self.x + x, self.y + y)
+        return Vector(self.x + x, self.y + y)
 
 
 @yaml_object(yaml)
@@ -86,7 +86,7 @@ class ScreenRect(object):
     def _compute(self):
         self.center_x = (self.left + self.right) / 2
         self.center_y = (self.top + self.bottom) / 2
-        self.center = ScreenPoint(self.center_x, self.center_y)
+        self.center = Vector(self.center_x, self.center_y)
 
     def evaluate(self):
         if not self.has_exp:
@@ -181,4 +181,4 @@ class ScreenRect(object):
 
     @property
     def topleft(self):
-        return ScreenPoint(self.left, self.top)
+        return Vector(self.left, self.top)

@@ -1,4 +1,5 @@
 import PIL
+import cv2
 
 from simplerpa.core.action.ActionImage import ActionImage
 from simplerpa.core.action.ActionScreen import ActionScreen
@@ -23,7 +24,6 @@ class ImageDetectResult(DetectResult):
     clip = None
     clip_on_image: ScreenRect = None
     clip_on_screen: ScreenRect = None
-
 
 
 class ImageDetection(Detection):
@@ -99,6 +99,16 @@ class ImageDetection(Detection):
             #     for result in result_list:
             #         rect = result.rect
             #         self.log_image('match', image_current[rect.top:rect.bottom, rect.left:rect.right])
+            if self.debug:
+                size = len(result_list)
+                print('image detection result_list: found {}'.format(size))
+                for index, result in enumerate(result_list):
+                    print('result-{}: confidence-{}, {}'.format(index,
+                                                                result.confidence if result is not None else None,
+                                                                result.rect if result is not None else None))
+                    rect = result.rect
+                    cv2.rectangle(image_current, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
+                ActionImage.log_image('result', image_current, debug=self.debug)
             return result_list
         else:
             result = ActionImage.find_one_template(image_current, image_template, min_confidence)
