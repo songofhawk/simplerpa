@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import time
 
+from core.action.ActionSystem import ActionSystem
 from simplerpa.core.action import ActionMouse
 from simplerpa.core.data.Action import Execution, Action
 from simplerpa.core.detection.ImageDetection import ImageDetection
@@ -91,32 +92,28 @@ class Find:
     def _do_once(self, detection, do_fail_action):
         if detection is None:
             return None
-        detect_res = None
         results = []
-        page = 0
-        if self.scroll is not None:
-            # 有滚动的话，就按滚动页数执行循环
-            count = self.scroll.page_count
-            find_all = (self.scroll.find_mode == "All")
-        else:
-            # 没有滚动的话，就只执行一次
-            count = 1
-            find_all = True
-        while page < count and (
-                (not find_all and detect_res is None)
-                or
-                find_all
-        ):
-            # 如果滚动的时候，找到即返回，那么就检查detect_res是否为None
-            # 如果滚动到指定页数，返回所有找到的结果，那么就不用检查detect_res了
+        if self.scroll is None:
             detect_res = detection.do()
             list_util.append_to(results, detect_res)
-            page += 1
-            if self.scroll:
-                time.sleep(1)
-                # print('before scroll {}'.format(self.scroll.one_page))
-                ActionMouse.scroll(self.scroll.one_page)
-                # print('-- after scroll')
+        else:
+            scroll = self.scroll
+            # 有滚动的话，就按滚动页数执行循环
+            count = scroll.page_count
+            page = 0
+            while True:
+                # 如果滚动的时候，找到即返回，那么就检查detect_res是否为None
+                # 如果滚动到指定页数，返回所有找到的结果，那么就不用检查detect_res了
+                detect_res = detection.do()
+                list_util.append_to(results, detect_res)
+                if detect_res is not None and scroll.find_mode == "Any":
+                    break
+                page += 1
+                if page < count:
+                    # print('before scroll {}'.format(self.scroll.one_page))
+                    ActionMouse.scroll(self.scroll.one_page)
+                    ActionSystem.wait(1.5)
+                    # print('-- after scroll')
 
         size = len(results)
         if size == 0:

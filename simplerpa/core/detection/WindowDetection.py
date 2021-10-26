@@ -1,3 +1,5 @@
+from core.action.ActionSystem import ActionSystem
+from core.data import Action
 from simplerpa.core.action.ActionWindow import ActionWindow
 from simplerpa.core.data.ScreenRect import ScreenRect
 from simplerpa.core.detection.Detection import Detection
@@ -55,6 +57,8 @@ class WindowDetection(Detection):
     current_only: True
     win_class: str = None
     title: str = None
+    activate: bool = False
+    wait: float = 1
 
     def do(self, find_all=False):
         if self.current_only:
@@ -97,6 +101,8 @@ class WindowDetection(Detection):
             else:
                 if self.debug:
                     print('检测窗口成功，预期title:"{}", 预期class:"{}'.format(self.title, self.win_class))
-                # ActionWindow.set_current_window(hwnd)
+                ActionWindow.set_current_window(hwnd)
+                if self.activate:
+                    ActionSystem.wait(self.wait)
                 return WindowResult(hwnd)
 

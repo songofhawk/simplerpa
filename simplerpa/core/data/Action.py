@@ -1,6 +1,6 @@
 from __future__ import annotations
-import time
 
+from core.action.ActionSystem import ActionSystem
 from simplerpa.core.action import ActionMouse
 from simplerpa.core.action.ActionClipboard import ActionClipboard
 from simplerpa.core.action.ActionError import ActionError
@@ -54,7 +54,7 @@ class Action:
         'snapshot': ActionScreen.snapshot_cv,
         'log_image': ActionImage.log_image,
         'ScreenRect': ScreenRect,
-        'wait': time.sleep,
+        'wait': ActionSystem.wait,
         'copy': ActionClipboard.copy,
         'paste': ActionClipboard.paste,
         'locate_state': ActionError.locate_state,

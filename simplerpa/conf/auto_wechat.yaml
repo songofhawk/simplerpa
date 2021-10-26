@@ -12,12 +12,11 @@ states:
         win_class: "WeChatMainWndForPC"
 #        title: "微信"
         fail_action: raise_error('没有找到微信！')
+        activate: True
+        wait: 1
     transition:
       # 点击
       action:
-        - print(find_result.hwnd)
-        - set_current_window(find_result.hwnd)
-        - wait(1)
         - wechat = get_window_rect(find_result.hwnd)
         - print(wechat)
       wait: 1
@@ -49,9 +48,12 @@ states:
       scroll:
         one_page: -200  # 负数是假设目前看到的是列表顶端，内容向上滚
         page_count: 20
+        find_mode: "Any"
     transition:
       # 右击第一个卡片
-      action: click(find_result.rect_on_screen.center)
+      action:
+        - print(find_result.rect_on_screen)
+        - click(find_result.rect_on_screen.center)
       wait: 2
   - name: "网约沟通群内容"
     id: 4
