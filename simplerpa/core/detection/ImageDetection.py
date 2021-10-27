@@ -128,10 +128,11 @@ class ImageDetection(Detection):
             if self.debug:
                 print('image detection result: {}, {}'.format(result.confidence if result is not None else None,
                                                               result.rect if result is not None else None))
+                ActionImage.log_image('result', image_current, debug=self.debug)
             return result
 
     def rect_in(self, rect, color, big_image, min_confidence):
-        result_list = ActionImage.find_rect(big_image, rect, color, find_all=self.detect_all, debug=self.debug)
+        result_list = ActionImage.find_rect(big_image, rect, color, find_all=self.detect_all, debug=False)
 
         if self.debug:
             if isinstance(result_list, list):

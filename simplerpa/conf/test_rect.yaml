@@ -14,5 +14,6 @@ states:
         rect: !vector x:519, y:9
         color: (245,245,245)
         debug: True
+        detect_all: True
     action:
       - print(find_result)

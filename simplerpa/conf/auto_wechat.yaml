@@ -62,7 +62,8 @@ states:
     find:
       image:
         snapshot: ScreenRect(wechat.left+304, wechat.left+823, wechat.top+65, wechat.top+723)
-        template: auto_wechat/chat_splitter.png
+        rect: !vector x:519, y:9
+        color: (245,245,245)
         detect_all: True
         debug: True
       #      scroll:
