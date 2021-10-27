@@ -1,19 +1,26 @@
 name: "测试rect"
-ver: 0.1
+ver: 0.5
 #screen_width: 3440
 #screen_height: 1440
 range: ScreenRect(3,5,8,9)
 #range: !rect l:0, r:1920, t:0, b:1080
 time_scale: 1
 states:
-  - id: 1
-    name: "测试图像检测"
+#  - id: 1
+#    name: "测试find_rect"
+#    check:
+#      image:
+#        snapshot: !rect l:3, r:522, t:169, b:829
+#        rect: !vector x:519, y:9
+#        color: (245,245,245)
+#        debug: True
+#        detect_all: True
+  - id: 2
+    name: "测试查找头像"
     check:
       image:
         snapshot: !rect l:3, r:522, t:169, b:829
-        rect: !vector x:519, y:9
-        color: (245,245,245)
+        template: auto_wechat/chat_head.png
+        confidence: 0.5
         debug: True
         detect_all: True
-    action:
-      - print(find_result)
