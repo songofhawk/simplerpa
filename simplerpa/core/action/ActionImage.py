@@ -129,17 +129,22 @@ class ActionImage:
                                   debug=debug)
 
     @staticmethod
-    def sliding_window(image_source, win_rect, handler, find_all=True, step_x=1, step_y=1, debug=False):
+    def sliding_window(image_source, win_rect, handler, find_all=True, step_x=1, step_y=1, debug=False, overlap=False):
         rows, cols, _ = image_source.shape
         win_width = win_rect.x
         win_height = win_rect.y
         results = []
-        for row in range(0, rows, step_y):
+
+        row = 0
+        skip_y = 0
+        while row < rows:
             top = row
             bottom = row + win_height
             if bottom > rows:
                 break
-            for col in range(0, cols, step_x):
+            col = 0
+            skip_x = 0
+            while col < cols:
                 left = col
                 right = col + win_width
                 if right > cols:
@@ -155,23 +160,38 @@ class ActionImage:
                     result.rect = res_rect
                     if find_all:
                         results.append(result)
+                        skip_x = win_width
+                        skip_y = win_height
                     else:
                         return result
+                if skip_x > 0:
+                    col = col + skip_x
+                    skip_x = 0
+                else:
+                    col = col + step_x
+
+            if skip_y > 0:
+                row = row + skip_y
+                skip_y = 0
+            else:
+                row = row + step_y
         return results
 
     @staticmethod
     def _match_color(image, color):
-        # img_sum = np.sum(image, axis=2)
+        img_sum = np.sum(image, axis=2)
         r, g, b = color
-        # color_sum = r+g+b
+        color_sum = r + g + b
 
-        # if np.all(img_sum == color_sum):
-
-
-        image_r = image[:, :, 2]
-        image_g = image[:, :, 1]
-        image_b = image[:, :, 0]
-        r_match = np.all(image_r == r)
-        g_match = np.all(image_g == g)
-        b_match = np.all(image_b == b)
-        return r_match and g_match and b_match, None
+        if np.all(img_sum == color_sum):
+            # 求和通过，说明大致匹配，再详细考察具体内容
+            image_r = image[:, :, 2]
+            image_g = image[:, :, 1]
+            image_b = image[:, :, 0]
+            r_match = np.all(image_r == r)
+            g_match = np.all(image_g == g)
+            b_match = np.all(image_b == b)
+            passed = r_match and g_match and b_match
+            return passed, None
+        else:
+            return False, None
