@@ -1,10 +1,12 @@
+from typing import Tuple
+
 import PIL
 import cv2
 
 from simplerpa.core.action.ActionImage import ActionImage
 from simplerpa.core.action.ActionScreen import ActionScreen
 from simplerpa.core.data import Action
-from simplerpa.core.data.ScreenRect import ScreenRect
+from simplerpa.core.data.ScreenRect import ScreenRect, Vector
 from simplerpa.core.detection.Detection import Detection, DetectResult
 
 
@@ -43,11 +45,15 @@ class ImageDetection(Detection):
     Attributes:
         snapshot (ScreenRect): 屏幕截图位置，限定查找范围，可以指定得大一些，程序会在指定范围内查找图像
         template (str): 要查找的图像模板文件（支持相对路径）
+        rect (Vector): 和color是一组，表示要检测一个纯色块，Vector里的x表示宽，y表示高
+        color (Tuple[int,int,int]): 和rect是一组，表示要检测一个纯色块，color按照(r,g,b)的顺序指定颜色
         confidence (float): 置信度，查找图像的时候，并不需要严格一致，程序会模糊匹配，并返回一个置信度（0 ~ 1之间的一个数值），置信度大于给定的数值，才会认为找到了
         keep_clip (Action.Evaluation): 根据返回结果，额外保持一个截图片段（比如已经查到图像左侧100个像素的区域）
 
     """
     template: str
+    rect: Vector
+    color: Tuple[int, int, int] = (0, 0, 0)
     snapshot: ScreenRect
     confidence: float = 0.8
     keep_clip: Action.Evaluation
@@ -55,7 +61,14 @@ class ImageDetection(Detection):
     def do_detection(self):
         snapshot_image = ActionScreen.snapshot(self.snapshot.evaluate())
         screen_image = ActionImage.pil_to_cv(snapshot_image)
-        res = self.image_in(self._get_template_full_path(), screen_image, self.confidence)
+        if self.template is not None:
+            res = self.image_in(self._get_template_full_path(), screen_image, self.confidence)
+        elif self.rect is not None:
+            res = self.rect_in(self.rect, self.color, screen_image, self.confidence)
+        else:
+            raise RuntimeError(
+                "ImageDetection should has either template or rect property, but all are None: {}".format(self))
+
         if res is None:
             return None
         if isinstance(res, list):
@@ -116,6 +129,31 @@ class ImageDetection(Detection):
                 print('image detection result: {}, {}'.format(result.confidence if result is not None else None,
                                                               result.rect if result is not None else None))
             return result
+
+    def rect_in(self, rect, color, big_image, min_confidence):
+        result_list = ActionImage.find_rect(big_image, rect, color, find_all=self.detect_all, debug=self.debug)
+
+        if self.debug:
+            if isinstance(result_list, list):
+                size = len(result_list)
+                print('image detection result_list: found {}'.format(size))
+                for index, result in enumerate(result_list):
+                    res_rect = result.rect
+                    print('result-{}: top-{}, left-{}'.format(index,
+                                                              res_rect.top if result is not None else None,
+                                                              res_rect.left if result is not None else None))
+                    cv2.rectangle(big_image, (res_rect.left, res_rect.top), (res_rect.right, res_rect.bottom),
+                                  (0, 0, 220), 2)
+            else:
+                res_rect = result_list.rect
+                print('image detection result: top-{}, left-{}'.format(
+                    res_rect.top if res_rect is not None else None,
+                    res_rect.left if res_rect is not None else None))
+                cv2.rectangle(big_image, (res_rect.left, res_rect.top), (res_rect.right, res_rect.bottom),
+                              (0, 0, 220), 2)
+
+            ActionImage.log_image('result', big_image, debug=self.debug)
+        return result_list
 
     def get_clip(self, res):
         if self.keep_clip is None:

@@ -6,7 +6,10 @@ from simplerpa.core.data import Action
 from simplerpa.core.share.yaml import yaml
 
 
+@yaml_object(yaml)
 class Vector(object):
+    yaml_tag = u'!vector'
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -28,6 +31,25 @@ class Vector(object):
         """
         return Vector(self.x + x, self.y + y)
 
+    @classmethod
+    def to_yaml(cls, representer, node):
+        return representer.represent_scalar(cls.yaml_tag,
+                                            'x:{}, y:{}'.format(node.x, node.y))
+
+    @classmethod
+    def from_yaml(cls, constructor, node):
+        result = re.search(r"x:(\S*)\s*,\s*y:(\S*)\s*", node.value)
+        if result is None:
+            raise RuntimeError('ScreenRect string is not formatted well: ""!'.format(node.value))
+        else:
+            v = result.groups()
+            v = list(map(int, v))
+            # splits = node.value.split(', ')
+            # test = list(map(lambda x: x + '_sss', splits))
+            # v = list(map(lambda x: int(x[1]) if x[1].isdigit() else x[1], map(methodcaller("split", ":"), splits)))
+            # print(v)
+            return cls(x=v[0], y=v[1])
+
 
 @yaml_object(yaml)
 class ScreenRect(object):
@@ -41,6 +63,7 @@ class ScreenRect(object):
         # super(ScreenRect, self).__init__([left, right, top, bottom])
         # self._inner_list = [left, right, top, bottom]
         self.has_exp = False
+        self.exp = None
         if isinstance(left, str):
             self.has_exp = True
             self.left = None
@@ -136,6 +159,7 @@ class ScreenRect(object):
             raise RuntimeError('ScreenRect string is not formatted well: ""!'.format(node.value))
         else:
             v = result.groups()
+            v = list(map(int, v))
             # splits = node.value.split(', ')
             # test = list(map(lambda x: x + '_sss', splits))
             # v = list(map(lambda x: int(x[1]) if x[1].isdigit() else x[1], map(methodcaller("split", ":"), splits)))
@@ -171,7 +195,7 @@ class ScreenRect(object):
         return ScreenRect(self.left - width, self.left, self.top, self.bottom)
 
     def snap_right(self, width):
-        return ScreenRect(self.right, self.right+width, self.top, self.bottom)
+        return ScreenRect(self.right, self.right + width, self.top, self.bottom)
 
     def snap_top(self, height):
         return ScreenRect(self.left, self.right, self.top - height, self.top)
