@@ -191,11 +191,21 @@ class ScreenRect(object):
 
         return ScreenRect(left, right, top, bottom)
 
-    def snap_left(self, width):
-        return ScreenRect(self.left - width, self.left, self.top, self.bottom)
+    def snap_left(self, width, height=None):
+        if height is not None:
+            offset_y = (height - (self.bottom - self.top)) / 2
+        else:
+            offset_y = 0
 
-    def snap_right(self, width):
-        return ScreenRect(self.right, self.right + width, self.top, self.bottom)
+        return ScreenRect(self.left - width, self.top - offset_y, self.bottom + offset_y)
+
+    def snap_right(self, width, height=None):
+        if height is not None:
+            offset_y = (height - (self.bottom - self.top)) / 2
+        else:
+            offset_y = 0
+
+        return ScreenRect(self.right, self.right + width, self.top - offset_y, self.bottom + offset_y)
 
     def snap_top(self, height):
         return ScreenRect(self.left, self.right, self.top - height, self.top)

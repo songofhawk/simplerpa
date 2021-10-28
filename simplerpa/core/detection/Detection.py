@@ -31,8 +31,14 @@ class Detection(AutoBase):
     def do(self):
         result = self.do_detection()
         if self.for_not_exist:
-            if result is not None and self.fail_action is not None:
-                Action.call(self.fail_action)
+            if result is not None:
+                if self.fail_action is not None:
+                    Action.call(self.fail_action)
+                return None
+            else:
+                # pass
+                # # result本来应该有具体内容，但这里是个特殊的检测，只有检测不到才通过，所以也不可能有真正的result存在，但设置为True，是为了避免返回以后，Find相关逻辑把空结果滤掉
+                result = True
         else:
             if result is None and self.fail_action is not None:
                 Action.call(self.fail_action)

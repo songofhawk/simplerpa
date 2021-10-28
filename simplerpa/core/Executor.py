@@ -169,6 +169,10 @@ class Executor:
         if flow_control_fail_action is not None:
             if flow_control_fail_action.is_locate_state:
                 return self._locate_state()
+            elif flow_control_fail_action.is_level_return:
+                self._current_state = None
+                self._current_index = None
+                return False
             else:
                 self._current_state = None
                 self._current_index = None

@@ -61,35 +61,38 @@ states:
       - df = create_dataframe(['time', 'start', 'end', 'price'])
     find:
       image:
-        snapshot: ScreenRect(wechat.left+304, wechat.left+823, wechat.top+65, wechat.top+723)
-        rect: !vector x:519, y:9
-        color: (245,245,245)
-        detect_all: True
+        template: auto_wechat/chat_head.png
+        snapshot: ScreenRect(wechat.left+304, wechat.left+370, wechat.top+65, wechat.top+723)
+        confidence: 0.5
         debug: True
+        detect_all: True
       #      scroll:
       #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
       #        page_count: 20
-      fail_action: raise_error('没找到对话分割线')
+      fail_action: raise_error('没找到人物头像')
     foreach:
       in_items: find_result
-      item: splitter
+      item: head
       action:
-        - sp_rect = splitter.rect_on_screen
+        - head_rect = head.rect_on_screen
       sub_states:
         - id: 40
           name: 非文字聊天
           check:
             image:
-              snapshot: sp_rect.topleft.offset_rect(65,50, 10, 11)
+              snapshot: head_rect.snap_right(30, 60)
               template: auto_wechat/angle.png
               for_not_exist: True
+              debug: True
+            fail_action: level_return(state.id)
           find:
             image:
-              snapshot: sp_rect.topleft.offset_rect(60,45, 87, 176)
+              snapshot: head_rect.topleft.offset_rect(60,45, 87, 176)
               template: auto_wechat/snapshot_thumbnail.png
               confidence: 0.5
+              debug: True
           transition:
-            action: click(sp_rect.topleft.offset(60,45, 87, 176))
+            action: click(head_rect.topleft.offset(60,45, 87, 176))
         - id: 42
           name: 有项目可以接受
           check:

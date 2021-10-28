@@ -58,6 +58,7 @@ class Action:
         'copy': ActionClipboard.copy,
         'paste': ActionClipboard.paste,
         'locate_state': ActionError.locate_state,
+        'level_return': ActionError.level_return,
         'set_window_pos': ActionWindow.set_window_pos,
         'get_window_rect': ActionWindow.get_window_rect,
         'set_current_window': ActionWindow.set_current_window,
@@ -71,9 +72,16 @@ class Action:
         if action_str.startswith('locate_state'):
             self.is_flow_control = True
             self.is_locate_state = True
+            self.is_level_return = False
+        elif action_str.startswith('level_return'):
+            self.is_flow_control = True
+            self.is_locate_state = False
+            self.is_level_return = True
         else:
             self.is_flow_control = False
             self.is_locate_state = False
+            self.is_level_return = False
+
 
     def call_once(self, call_env=None):
         if call_env is not None:
