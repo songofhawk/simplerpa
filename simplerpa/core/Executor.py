@@ -178,8 +178,8 @@ class Executor:
                 self._current_index = None
                 return False
         else:
-            self._current_state = None
-            self._current_index = None
+            # self._current_state = None
+            # self._current_index = None
             return False
 
     @staticmethod

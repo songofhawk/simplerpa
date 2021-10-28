@@ -63,7 +63,7 @@ states:
       image:
         template: auto_wechat/chat_head.png
         snapshot: ScreenRect(wechat.left+304, wechat.left+370, wechat.top+65, wechat.top+723)
-        confidence: 0.5
+        confidence: 0.3
         debug: True
         detect_all: True
       #      scroll:
@@ -92,7 +92,7 @@ states:
               confidence: 0.5
               debug: True
           transition:
-            action: click(head_rect.topleft.offset(60,45, 87, 176))
+            action: click(head_rect.topleft.offset(60,45))
         - id: 42
           name: 有项目可以接受
           check:
