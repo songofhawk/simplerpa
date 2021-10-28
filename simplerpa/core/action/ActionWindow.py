@@ -1,10 +1,14 @@
+import win32api
 import win32con
 import win32gui
 
-from simplerpa.core.data.ScreenRect import ScreenRect
+from simplerpa.core.data import ScreenRect
 
 
 class ActionWindow:
+    screen_width: int = None
+    screen_height: int = None
+
     @classmethod
     def get_current_window(cls):
         """
@@ -91,7 +95,7 @@ class ActionWindow:
             ScreenRect: 窗口的位置和大小
         """
         left, top, right, bottom = win32gui.GetWindowRect(hwnd)
-        return ScreenRect(left, right, top, bottom)
+        return ScreenRect.ScreenRect(left, right, top, bottom)
 
     @classmethod
     def set_window_pos(cls, hwnd, x, y, width, height):
@@ -108,3 +112,14 @@ class ActionWindow:
 
         """
         win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, x, y, width, height, win32con.SWP_SHOWWINDOW)
+
+    @classmethod
+    def get_screen_resolution(cls):
+        if cls.screen_width is None or cls.screen_height is None:
+            cls.refresh_screen_resolution()
+        return cls.screen_width, cls.screen_height
+
+    @classmethod
+    def refresh_screen_resolution(cls):
+        cls.screen_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
+        cls.screen_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)

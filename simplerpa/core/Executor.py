@@ -58,6 +58,8 @@ class Executor:
 
         # check中如果触发了影响流程的fail_action，那么就退出当前状态，直接按照该action指定的状态迁移
         if not self._do_find(the_state.check, False):
+            self._current_state = None
+            self._current_index = None
             return
 
         Action.call(the_state.action)
@@ -170,16 +172,10 @@ class Executor:
             if flow_control_fail_action.is_locate_state:
                 return self._locate_state()
             elif flow_control_fail_action.is_level_return:
-                self._current_state = None
-                self._current_index = None
                 return False
             else:
-                self._current_state = None
-                self._current_index = None
                 return False
         else:
-            # self._current_state = None
-            # self._current_index = None
             return False
 
     @staticmethod

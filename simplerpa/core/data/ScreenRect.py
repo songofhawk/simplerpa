@@ -2,6 +2,7 @@ import re
 
 from ruamel.yaml import yaml_object
 
+from simplerpa.core.action import ActionWindow
 from simplerpa.core.data import Action
 from simplerpa.core.share.yaml import yaml
 
@@ -55,9 +56,6 @@ class Vector(object):
 class ScreenRect(object):
     yaml_tag = u'!rect'
     snapshot = None
-
-    # screen_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
-    # screen_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
 
     def __init__(self, left=None, right=None, top=None, bottom=None):
         # super(ScreenRect, self).__init__([left, right, top, bottom])
@@ -138,9 +136,19 @@ class ScreenRect(object):
 
     def swap_top_bottom(self):
         temp_top = self.top
-        top = self.screen_height - temp_top if temp_top < self.screen_height else 0
-        bottom = self.screen_height - self.bottom if self.bottom < self.screen_height else 0
+        screen_width, screen_height = ActionWindow.ActionWindow.get_screen_resolution()
+        top = screen_height - temp_top if temp_top < screen_height else 0
+        bottom = screen_height - self.bottom if self.bottom < screen_height else 0
         return ScreenRect(self.left, self.right, top, bottom)
+
+    @classmethod
+    def center_expand(cls, width, height):
+        screen_width, screen_height = ActionWindow.ActionWindow.get_screen_resolution()
+        left = (screen_width - width) / 2
+        right = screen_width - left
+        top = (screen_height - height) / 2
+        bottom = screen_height - top
+        return ScreenRect(left, right, top, bottom)
 
     def __str__(self):
         return 'l:{},  r:{},  t:{},  b:{}'.format(self.left, self.right, self.top, self.bottom)
