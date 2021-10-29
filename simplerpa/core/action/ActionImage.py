@@ -61,6 +61,7 @@ class ActionImage:
         """
         if rect is not None:
             cv_image = cv_image[rect.top:rect.bottom, rect.left:rect.right]
+        cls.log_image('ocr', cv_image, True)
         cv_image_gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         img_high_contrast = cls.grayscale_linear_transformation(cv_image_gray, 0, 255)
 
@@ -69,7 +70,7 @@ class ActionImage:
         if len(res_chars) == 0:
             return ''
         else:
-            result = ''.join(list(map(str, res_chars)))
+            result = ''.join(list(map(str, res_chars[0])))
 
             return result
 
