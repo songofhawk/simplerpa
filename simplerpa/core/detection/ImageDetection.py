@@ -19,6 +19,7 @@ class ImageDetectResult(DetectResult):
         clip: 额外截取的图像片段
         clip_on_image: clip图像在指定区域内的相对位置
         clip_on_screen: clip图像在屏幕上的位置
+        scale: 在什么缩放比例下，得到的当前检测结果
     """
     rect_on_image: ScreenRect = None
     rect_on_screen: ScreenRect = None
@@ -26,7 +27,7 @@ class ImageDetectResult(DetectResult):
     clip = None
     clip_on_image: ScreenRect = None
     clip_on_screen: ScreenRect = None
-
+    scale = None
 
 class ImageDetection(Detection):
     """
@@ -58,12 +59,20 @@ class ImageDetection(Detection):
     confidence: float = 0.8
     keep_clip: Action.Evaluation
     auto_scale: Tuple[float, float] = None
+    scale: Action.Evaluation = None
 
     def do_detection(self):
         snapshot_image = ActionScreen.snapshot(self.snapshot.evaluate())
         screen_image = ActionImage.pil_to_cv(snapshot_image)
+
+        if self.scale is not None:
+            scale = self.scale.evaluate_exp()
+        else:
+            scale = None
+
         if self.template is not None:
-            res = self.image_in(self._get_template_full_path(), screen_image, self.confidence, self.auto_scale)
+            res = self.image_in(self._get_template_full_path(), screen_image, self.confidence, self.auto_scale,
+                                scale)
         elif self.rect is not None:
             res = self.rect_in(self.rect, self.color, screen_image, self.confidence)
         else:
@@ -72,7 +81,7 @@ class ImageDetection(Detection):
 
         if res is None:
             return None
-        if isinstance(res, list):
+        elif isinstance(res, list):
             results = []
             for one in res:
                 result = self._gen_result(one, screen_image)
@@ -86,16 +95,18 @@ class ImageDetection(Detection):
         result.rect_on_image = res.rect
         result.rect_on_screen = res.rect.offset_from(self.snapshot)
         result.image = screen_image
+        result.scale = res.scale
         self.get_clip(result)
         return result
 
-    def image_in(self, template_file_path, big_image, min_confidence, auto_scale):
+    def image_in(self, template_file_path, big_image, min_confidence, auto_scale, scale):
         """
         检查两幅图是否相似
         :param min_confidence: 最低可信度, 不足这个可信度的结果将被忽略
         :param template_file_path: 要查找的图文件路径位置
         :param big_image: 大图
         :param auto_scale: 自动缩放模板图，来寻找匹配
+        :param scale: 指定要缩放模板图的比例
         :return:相似度，完全相同是1，完全不同是0
         目标图像需要是pillow格式的，将在函数中被转换为opencv格式的，最后用aircv的find_template方法比较是否相似
         """
@@ -109,20 +120,25 @@ class ImageDetection(Detection):
         image_template = ActionImage.load_from_file(template_file_path)
         ActionImage.log_image('template', image_template, debug=self.debug)
 
-        result_list = ActionImage.find_all_template(image_current, image_template, min_confidence, auto_scale)
+        result_list = ActionImage.find_all_template(image_current, image_template, min_confidence, auto_scale, scale)
         if self.debug:
-            size = len(result_list)
-            print('image detection result_list: found {}'.format(size))
-            for index, result in enumerate(result_list):
-                rect = result.rect
-                print('result-{}: confidence-{}, {}'.format(index,
-                                                            result.confidence if result is not None else None,
-                                                            rect if result is not None else None))
+            if result_list is None:
+                print('image detection result_list: found None')
+            else:
+                size = len(result_list)
+                print('image detection result_list: found {}'.format(size))
+                for index, result in enumerate(result_list):
+                    rect = result.rect
+                    print('result-{}: confidence-{}, {}'.format(index,
+                                                                result.confidence if result is not None else None,
+                                                                rect if result is not None else None))
 
-                cv2.rectangle(image_current, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
-            ActionImage.log_image('result', image_current, debug=self.debug)
+                    cv2.rectangle(image_current, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
+                ActionImage.log_image('result', image_current, debug=self.debug)
 
-        if self.detect_all:
+        if result_list is None or len(result_list) == 0:
+            return None
+        elif self.detect_all:
             return result_list
         else:
             return result_list[0]

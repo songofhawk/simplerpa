@@ -102,12 +102,14 @@ states:
               snapshot: ScreenRect.center_expand(500,1200)
               template: auto_wechat/completed.png
               confidence: 0.5
-              auto_scale: True
+              auto_scale: (0.7,1.1)
               debug: True
+            result_name: complete_text
           find:
             image:
               snapshot: ScreenRect.center_expand(500,1200)
               template: auto_wechat/line_in_snapshot.png
+              scale: complete_text.scale
               detect_all: True
               debug: True
           for_each:

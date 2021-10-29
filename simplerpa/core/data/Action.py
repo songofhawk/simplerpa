@@ -50,7 +50,7 @@ class Action:
         'press': ActionKeyboard.press,
         'ocr': ActionImage.ocr,
         'print': print,
-        'find_template': ActionImage.find_one_template,
+        'find_template': ActionImage.find_all_template,
         'snapshot': ActionScreen.snapshot_cv,
         'log_image': ActionImage.log_image,
         'ScreenRect': ScreenRect,

@@ -47,7 +47,7 @@ class Find:
     window: WindowDetection
     scroll: Scroll
     fail_action: Execution
-    result_name: None
+    result_name: str = None
     find_mode: str = "All"
 
     def do(self, do_fail_action):
@@ -78,16 +78,20 @@ class Find:
             found_all = found_all and (res is not None)
             list_util.append_to(results, res)
 
-        if self.find_mode == "All" and found_all:
-            if self.result_name is not None:
-                Action.save_call_env({self.result_name: results})
-            return results if len(results) > 1 else results[0]
-        elif self.find_mode == "Any" and found_any:
-            if self.result_name is not None:
-                Action.save_call_env({self.result_name: results})
-            return results if len(results) > 1 else results[0]
-        else:
+        if len(results) == 0:
             return None
+        else:
+            final_result = results if len(results) > 1 else results[0]
+            if self.find_mode == "All" and found_all:
+                if self.result_name is not None:
+                    Action.save_call_env({self.result_name: final_result})
+                return final_result
+            elif self.find_mode == "Any" and found_any:
+                if self.result_name is not None:
+                    Action.save_call_env({self.result_name: final_result})
+                return final_result
+            else:
+                return None
 
     def _do_once(self, detection, do_fail_action):
         if detection is None:

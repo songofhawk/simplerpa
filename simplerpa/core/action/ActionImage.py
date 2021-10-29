@@ -86,8 +86,17 @@ class ActionImage:
         return img_gray_new.astype(np.uint8)
 
     @classmethod
-    def find_all_template(cls, image_current, image_template, min_confidence, auto_scale: Tuple[float, float] = None):
-        match_results = ac.find_all_template(image_current, image_template, min_confidence)
+    def find_all_template(cls, image_current, image_template, min_confidence, auto_scale: Tuple[float, float] = None,
+                          scale: float = None):
+        width = image_template.shape[1]
+        height = image_template.shape[0]
+        if scale is not None:
+            resized = cv2.resize(image_template, (int(width * scale), int(height * scale)),
+                                 interpolation=cv2.INTER_CUBIC)
+        else:
+            resized = image_template
+        match_results = ac.find_all_template(image_current, resized, min_confidence)
+
         if match_results is None or len(match_results) == 0:
             if auto_scale is None:
                 return None
@@ -95,16 +104,15 @@ class ActionImage:
                 scale_min = auto_scale[0]
                 scale_max = auto_scale[1]
                 for scale in np.arange(scale_min, scale_max, 0.1):
-                    width = image_template.shape[1]
-                    height = image_template.shape[0]
-                    resized = cv2.resize(image_template, (int(width * scale), int(height * scale)), interpolation=cv2.INTER_CUBIC)
+                    resized = cv2.resize(image_template, (int(width * scale), int(height * scale)),
+                                         interpolation=cv2.INTER_CUBIC)
                     match_results = ac.find_all_template(image_current, resized, min_confidence)
                     # print("try resize template to match: {}".format(scale))
                     if match_results is not None and len(match_results) > 0:
                         break
         res_list = []
         for match_result in match_results:
-            res = cls._change_result(match_result)
+            res = cls._change_result(match_result, scale if auto_scale else None)
             res_list.append(res)
         return res_list
 
@@ -116,13 +124,14 @@ class ActionImage:
     #     return match_result[0] if match_result else None
 
     @classmethod
-    def _change_result(cls, match_result):
+    def _change_result(cls, match_result, scale=None):
         if match_result is None:
             return None
         rect_array = match_result['rectangle']
         res = DataObject()
         res.confidence = match_result['confidence']
         res.rect = ScreenRect(rect_array[0][0], rect_array[3][0], rect_array[0][1], rect_array[3][1])
+        res.scale = scale
         return res
 
     @classmethod
