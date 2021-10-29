@@ -57,12 +57,13 @@ class ImageDetection(Detection):
     snapshot: ScreenRect
     confidence: float = 0.8
     keep_clip: Action.Evaluation
+    auto_scale: Tuple[float, float] = None
 
     def do_detection(self):
         snapshot_image = ActionScreen.snapshot(self.snapshot.evaluate())
         screen_image = ActionImage.pil_to_cv(snapshot_image)
         if self.template is not None:
-            res = self.image_in(self._get_template_full_path(), screen_image, self.confidence)
+            res = self.image_in(self._get_template_full_path(), screen_image, self.confidence, self.auto_scale)
         elif self.rect is not None:
             res = self.rect_in(self.rect, self.color, screen_image, self.confidence)
         else:
@@ -88,12 +89,13 @@ class ImageDetection(Detection):
         self.get_clip(result)
         return result
 
-    def image_in(self, template_file_path, big_image, min_confidence):
+    def image_in(self, template_file_path, big_image, min_confidence, auto_scale):
         """
         检查两幅图是否相似
         :param min_confidence: 最低可信度, 不足这个可信度的结果将被忽略
         :param template_file_path: 要查找的图文件路径位置
         :param big_image: 大图
+        :param auto_scale: 自动缩放模板图，来寻找匹配
         :return:相似度，完全相同是1，完全不同是0
         目标图像需要是pillow格式的，将在函数中被转换为opencv格式的，最后用aircv的find_template方法比较是否相似
         """
@@ -102,57 +104,43 @@ class ImageDetection(Detection):
         else:
             image_current = big_image
 
+        print('image detection: \r\n\tsnapshot:{}, template:{}'.format(self.snapshot, self.template))
         ActionImage.log_image('current', image_current, debug=self.debug)
         image_template = ActionImage.load_from_file(template_file_path)
         ActionImage.log_image('template', image_template, debug=self.debug)
 
+        result_list = ActionImage.find_all_template(image_current, image_template, min_confidence, auto_scale)
+        if self.debug:
+            size = len(result_list)
+            print('image detection result_list: found {}'.format(size))
+            for index, result in enumerate(result_list):
+                rect = result.rect
+                print('result-{}: confidence-{}, {}'.format(index,
+                                                            result.confidence if result is not None else None,
+                                                            rect if result is not None else None))
+
+                cv2.rectangle(image_current, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
+            ActionImage.log_image('result', image_current, debug=self.debug)
+
         if self.detect_all:
-            result_list = ActionImage.find_all_template(image_current, image_template, min_confidence)
-            # if self.debug:
-            #     for result in result_list:
-            #         rect = result.rect
-            #         self.log_image('match', image_current[rect.top:rect.bottom, rect.left:rect.right])
-            if self.debug:
-                size = len(result_list)
-                print('image detection result_list: found {}'.format(size))
-                for index, result in enumerate(result_list):
-                    print('result-{}: confidence-{}, {}'.format(index,
-                                                                result.confidence if result is not None else None,
-                                                                result.rect if result is not None else None))
-                    rect = result.rect
-                    cv2.rectangle(image_current, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
-                ActionImage.log_image('result', image_current, debug=self.debug)
             return result_list
         else:
-            result = ActionImage.find_one_template(image_current, image_template, min_confidence)
-            if self.debug:
-                print('image detection result: {}, {}'.format(result.confidence if result is not None else None,
-                                                              result.rect if result is not None else None))
-                ActionImage.log_image('result', image_current, debug=self.debug)
-            return result
+            return result_list[0]
 
     def rect_in(self, rect, color, big_image, min_confidence):
+        print('image detection: \r\n\tsnapshot:{}, rect:{}， color:{}'.format(self.snapshot, self.rect, self.color))
         result_list = ActionImage.find_rect(big_image, rect, color, find_all=self.detect_all, debug=False)
 
         if self.debug:
-            if isinstance(result_list, list):
-                size = len(result_list)
-                print('image detection result_list: found {}'.format(size))
-                for index, result in enumerate(result_list):
-                    res_rect = result.rect
-                    print('result-{}: top-{}, left-{}'.format(index,
-                                                              res_rect.top if result is not None else None,
-                                                              res_rect.left if result is not None else None))
-                    cv2.rectangle(big_image, (res_rect.left, res_rect.top), (res_rect.right, res_rect.bottom),
-                                  (0, 0, 220), 2)
-            else:
-                res_rect = result_list.rect
-                print('image detection result: top-{}, left-{}'.format(
-                    res_rect.top if res_rect is not None else None,
-                    res_rect.left if res_rect is not None else None))
+            size = len(result_list)
+            print('image detection result_list: found {}'.format(size))
+            for index, result in enumerate(result_list):
+                res_rect = result.rect
+                print('result-{}: top-{}, left-{}'.format(index,
+                                                          res_rect.top if result is not None else None,
+                                                          res_rect.left if result is not None else None))
                 cv2.rectangle(big_image, (res_rect.left, res_rect.top), (res_rect.right, res_rect.bottom),
                               (0, 0, 220), 2)
-
             ActionImage.log_image('result', big_image, debug=self.debug)
         return result_list
 

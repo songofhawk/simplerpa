@@ -19,8 +19,9 @@ states:
     name: "测试查找头像"
     check:
       image:
-        snapshot: !rect l:3, r:66, t:169, b:940
-        template: auto_wechat/chat_head.png
+        snapshot: !rect l:1470,  r:1970,  t:120,  b:1320
+        template: auto_wechat/completed.png
         confidence: 0.5
         debug: True
-        detect_all: True
+        auto_scale: (0.7,1.1)
+#        detect_all: True

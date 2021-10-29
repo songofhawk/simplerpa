@@ -42,7 +42,7 @@ states:
       image:
         snapshot: wechat
         # 直接在整个微信对话框内搜索
-        template: auto_wechat/group_name.png
+        template: auto_wechat/contactor_name_h.png
 #        debug: True
       fail_action: raise_error('没找到【网约沟通】群！')
       scroll:
@@ -62,9 +62,9 @@ states:
     find:
       image:
         template: auto_wechat/chat_head.png
-        snapshot: ScreenRect(wechat.left+304, wechat.left+370, wechat.top+65, wechat.top+723)
+        snapshot: ScreenRect(wechat.left+304, wechat.left+370, wechat.top+65, wechat.top+900)
         confidence: 0.3
-#        debug: True
+        debug: True
         detect_all: True
       #      scroll:
       #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
@@ -77,13 +77,13 @@ states:
         - head_rect = head.rect_on_screen
       sub_states:
         - id: 40
-          name: 非文字聊天
+          name: 1条聊天记录
           check:
             image:
               snapshot: head_rect.snap_right(30, 70)
               template: auto_wechat/angle.png
               for_not_exist: True
-              debug: True
+#              debug: True
             fail_action: level_return(state.id)
           find:
             image:
@@ -92,14 +92,18 @@ states:
               confidence: 0.5
 #              debug: True
           transition:
-            action: click(head_rect.topleft.offset(60,45))
+            action:
+              - click(head_rect.topleft.offset(60,45))
+              - wait(0.5)
         - id: 42
           name: 图片大图
           check:
             image:
               snapshot: ScreenRect.center_expand(500,1200)
               template: auto_wechat/completed.png
-#              debug: True
+              confidence: 0.5
+              auto_scale: True
+              debug: True
           find:
             image:
               snapshot: ScreenRect.center_expand(500,1200)
@@ -122,7 +126,7 @@ states:
               - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str})
     transition:
       wait: 1
-  - name: "网约沟通群内容"
+  - name: "内容总结"
     id: 5
     action:
       - df.to_excel('./result.xlsx')

@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Tuple
 
 import numpy as np
 from cnocr import CnOcr
@@ -85,21 +86,34 @@ class ActionImage:
         return img_gray_new.astype(np.uint8)
 
     @classmethod
-    def find_all_template(cls, image_current, image_template, min_confidence):
+    def find_all_template(cls, image_current, image_template, min_confidence, auto_scale: Tuple[float, float] = None):
         match_results = ac.find_all_template(image_current, image_template, min_confidence)
-        if match_results is None:
-            return None
+        if match_results is None or len(match_results) == 0:
+            if auto_scale is None:
+                return None
+            else:
+                scale_min = auto_scale[0]
+                scale_max = auto_scale[1]
+                for scale in np.arange(scale_min, scale_max, 0.1):
+                    width = image_template.shape[1]
+                    height = image_template.shape[0]
+                    resized = cv2.resize(image_template, (int(width * scale), int(height * scale)), interpolation=cv2.INTER_CUBIC)
+                    match_results = ac.find_all_template(image_current, resized, min_confidence)
+                    # print("try resize template to match: {}".format(scale))
+                    if match_results is not None and len(match_results) > 0:
+                        break
         res_list = []
         for match_result in match_results:
             res = cls._change_result(match_result)
             res_list.append(res)
         return res_list
 
-    @classmethod
-    def find_one_template(cls, image_source, image_template, min_confidence=0.5):
-        match_result = ac.find_template(image_source, image_template, min_confidence)
-        res = cls._change_result(match_result)
-        return res
+    # 这个方法没用了，因为实际上ac.find_template方法，其实也是调用了find_all_template,然后返回第一个结果而已
+    # @classmethod
+    # def find_one_template(cls, image_source, image_template, min_confidence=0.5,
+    #                       auto_scale: Tuple[float, float] = None):
+    #     match_result = cls.find_all_template(image_source, image_template, min_confidence, auto_scale)
+    #     return match_result[0] if match_result else None
 
     @classmethod
     def _change_result(cls, match_result):
@@ -158,12 +172,12 @@ class ActionImage:
                     result.handle_res = res
                     res_rect = ScreenRect(left, right, top, bottom)
                     result.rect = res_rect
+                    results.append(result)
                     if find_all:
-                        results.append(result)
                         skip_x = win_width
                         skip_y = win_height
                     else:
-                        return result
+                        return results
                 if skip_x > 0:
                     col = col + skip_x
                     skip_x = 0
