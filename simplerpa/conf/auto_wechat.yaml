@@ -117,13 +117,13 @@ states:
             item: line
             action:
               - block = line.rect_on_screen
-              - row_1 = block.snap_bottom(60)
+              - row_1 = block.snap_bottom(60*complete_text.scale)
               - time_str = ocr(snapshot(row_1))
-              - row_2 = row_1.snap_bottom(50)
+              - row_2 = row_1.snap_bottom(50*complete_text.scale)
               - start_str = ocr(snapshot(row_2))
-              - row_3 = row_2.snap_bottom(50)
+              - row_3 = row_2.snap_bottom(55*complete_text.scale)
               - end_str = ocr(snapshot(row_3))
-              - row_4 = row_3.snap_bottom(45)
+              - row_4 = row_3.snap_bottom(60*complete_text.scale).snap_right(150*complete_text.scale)
               - price_str = ocr(snapshot(row_4))
               - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str}, ignore_index=True)
     transition:

@@ -88,14 +88,15 @@ class ActionImage:
 
     @classmethod
     def find_all_template(cls, image_current, image_template, min_confidence, auto_scale: Tuple[float, float] = None,
-                          scale: float = None):
+                          scale: float = 1):
         width = image_template.shape[1]
         height = image_template.shape[0]
-        if scale is not None:
+        if scale == 1:
+            resized = image_template
+        else:
             resized = cv2.resize(image_template, (int(width * scale), int(height * scale)),
                                  interpolation=cv2.INTER_CUBIC)
-        else:
-            resized = image_template
+
         match_results = ac.find_all_template(image_current, resized, min_confidence)
 
         if match_results is None or len(match_results) == 0:

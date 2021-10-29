@@ -59,14 +59,14 @@ class ImageDetection(Detection):
     confidence: float = 0.8
     keep_clip: Action.Evaluation
     auto_scale: Tuple[float, float] = None
-    scale: Action.Evaluation = None
+    scale: Action.Evaluation = 1
 
     def do_detection(self):
         snapshot_image = ActionScreen.snapshot(self.snapshot.evaluate())
         screen_image = ActionImage.pil_to_cv(snapshot_image)
 
         if self.scale is not None:
-            scale = self.scale.evaluate_exp()
+            scale = self.scale.evaluate_exp() if isinstance(self.scale, Action.Evaluation) else self.scale
         else:
             scale = None
 
