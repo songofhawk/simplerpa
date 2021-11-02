@@ -1,2 +1,0 @@
-class DataObject(object):
-    pass

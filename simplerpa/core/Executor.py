@@ -22,6 +22,7 @@ class Executor:
 
     def __init__(self, project: Project):
         self.project = project
+        project.executor = self
         self._current_state = None
         self._current_index = None
         self._current_states = None
@@ -69,7 +70,7 @@ class Executor:
 
         foreach = the_state.foreach
         if isinstance(foreach, ForEach):
-            foreach.do(self)
+            foreach.do()
 
         '''从这里开始，处理transition模块'''
         transition = the_state.transition

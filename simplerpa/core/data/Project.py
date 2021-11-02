@@ -26,3 +26,13 @@ class Project:
     def __init__(self):
         self.all_states: Dict[int, State] = {}
         self.path_root = None
+        self.executor = None
+
+    # @property
+    # def executor(self):
+    #     return StateBlockBase.executor
+    #
+    # @executor.setter
+    # def executor(self, executor):
+    #     StateBlockBase.executor = executor
+

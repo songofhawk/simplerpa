@@ -1,5 +1,5 @@
+from ..data.StateBlockBase import StateBlockBase
 from simplerpa.core.data.Action import Action, Execution
-from simplerpa.core.data.AutoBase import AutoBase
 
 
 class DetectResult:
@@ -10,7 +10,7 @@ class DetectResult:
     # detected: bool = False
 
 
-class Detection(AutoBase):
+class Detection(StateBlockBase):
     """
     检测基础类，有ColorDetection, ImageDetection, OcrDetection, WindowDetection等子类，用于检测页面上的特定内容。
     Attributes:

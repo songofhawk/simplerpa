@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import List
 
+from .StateBlockBase import StateBlockBase
 from simplerpa.core.data.Action import Action, Execution, Evaluation
 from simplerpa.core.data.Find import Find
 
 
-class To:
+class To(StateBlockBase):
     def __init__(self, _to='next'):
         self.is_next = False
         self.id = None
@@ -26,7 +27,7 @@ class To:
             self.id = int(self._to)
 
 
-class Transition:
+class Transition(StateBlockBase):
     """
     状态迁移配置节点，指定什么动作会触发迁移
     """
@@ -47,7 +48,7 @@ class Transition:
         return False if self.max_time is None else self._trans_time >= self.max_time
 
 
-class State:
+class State(StateBlockBase):
     """
     状态节点，用于配置界面流中一个特定的页面
 
@@ -69,7 +70,7 @@ class State:
     foreach: ForEach
 
 
-class ForEach:
+class ForEach(StateBlockBase):
     in_items: Evaluation
     item: str
     action: Execution
@@ -78,21 +79,21 @@ class ForEach:
     def __init__(self):
         self.call_env = {}
 
-    def do(self, executor):
+    def do(self):
         items = self.in_items.call_once()
         item_name = 'item' if self.item is None else self.item
         if isinstance(items, list):
             for item in items:
                 self.call_env[item_name] = item
-                self._do_one(executor)
+                self._do_one()
         else:
             self.call_env[item_name] = items
-            self._do_one(executor)
+            self._do_one()
 
-    def _do_one(self, executor):
+    def _do_one(self):
         Action.call(self.action, self.call_env)
 
         sub_states = self.sub_states
         if sub_states is not None and len(sub_states) > 0:
-            executor.drill_into_substates(sub_states)
+            self.project.executor.drill_into_substates(sub_states)
 

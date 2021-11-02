@@ -3,6 +3,8 @@ from __future__ import annotations
 import time
 
 from core.action.ActionSystem import ActionSystem
+from . import Misc
+from .StateBlockBase import StateBlockBase
 from simplerpa.core.action import ActionMouse
 from simplerpa.core.data.Action import Execution, Action
 from simplerpa.core.detection.ImageDetection import ImageDetection
@@ -12,7 +14,7 @@ from simplerpa.core.detection.WindowDetection import WindowDetection
 from simplerpa.core.share import list_util
 
 
-class Scroll:
+class Scroll(StateBlockBase):
     """
     在查找（Find）过程中的滚动配置
     Attributes:
@@ -27,7 +29,7 @@ class Scroll:
     find_mode: str = "Any"
 
 
-class Find:
+class Find(StateBlockBase):
     """
     用于查找的基础配置，可以有不同的查找模式，在State节点中，它如果是check属性，则不保存查找结果，如果是find属性，则把查找结果，临时存入find_result
 
@@ -49,6 +51,7 @@ class Find:
     fail_action: Execution
     result_name: str = None
     find_mode: str = "All"
+    foreach: Misc.ForEach = None
 
     def do(self, do_fail_action):
         results = []
@@ -118,6 +121,9 @@ class Find:
                     ActionMouse.scroll(self.scroll.one_page)
                     ActionSystem.wait(1.5)
                     # print('-- after scroll')
+
+        if self.foreach is not None:
+            self.foreach.do()
 
         size = len(results)
         if size == 0:

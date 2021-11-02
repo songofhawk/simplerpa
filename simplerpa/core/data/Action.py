@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from core.action.ActionSystem import ActionSystem
+from simplerpa.core.action.ActionSystem import ActionSystem
+from .StateBlockBase import StateBlockBase
 from simplerpa.core.action import ActionMouse
 from simplerpa.core.action.ActionClipboard import ActionClipboard
 from simplerpa.core.action.ActionError import ActionError
@@ -13,7 +14,7 @@ from simplerpa.core.const import MOUSE
 from simplerpa.core.data.ScreenRect import ScreenRect
 
 
-class Action:
+class Action(StateBlockBase):
     """
     执行操作基础类，有Evaluation和Execution两个子类，分别对应有返回结果和没有返回结果的操作。在本基础类中，还定义了所有具体的操作方法名，这些方法可以在Action类型的配置节点中直接调用。具体的参数会在对应的类中介绍
 

@@ -4,7 +4,6 @@ from types import CodeType
 from simplerpa.core.data import Project
 from simplerpa.core.data.Misc import State, Transition, To
 from simplerpa.core.data.Project import Project
-from simplerpa.core.data.ScreenRect import ScreenRect
 from simplerpa.core.share.yaml import yaml
 from simplerpa.objtyping import objtyping
 

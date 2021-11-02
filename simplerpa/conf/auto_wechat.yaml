@@ -42,8 +42,8 @@ states:
       image:
         snapshot: wechat
         # 直接在整个微信对话框内搜索
-        template: auto_wechat/contactor_name_h.png
-#        debug: True
+        template: auto_wechat/group_name.png
+        debug: True
       fail_action: raise_error('没找到【网约沟通】群！')
       scroll:
         one_page: -200  # 负数是假设目前看到的是列表顶端，内容向上滚
