@@ -205,7 +205,7 @@ class ScreenRect(object):
         else:
             offset_y = 0
 
-        return ScreenRect(self.left - width, self.top - offset_y, self.bottom + offset_y)
+        return ScreenRect(self.left - width, self.left, self.top - offset_y, self.bottom + offset_y)
 
     def snap_right(self, width, height=None):
         if height is not None:
@@ -215,11 +215,53 @@ class ScreenRect(object):
 
         return ScreenRect(self.right, self.right + width, self.top - offset_y, self.bottom + offset_y)
 
-    def snap_top(self, height):
-        return ScreenRect(self.left, self.right, self.top - height, self.top)
+    def snap_top(self, height, width=None):
+        if width is not None:
+            offset_x = (width - (self.right - self.left)) / 2
+        else:
+            offset_x = 0
 
-    def snap_bottom(self, height):
-        return ScreenRect(self.left, self.right, self.bottom, self.bottom + height)
+        return ScreenRect(self.left - offset_x, self.right + offset_x, self.top - height, self.top)
+
+    def snap_bottom(self, height, width=None):
+        if width is not None:
+            offset_x = (width - (self.right - self.left)) / 2
+        else:
+            offset_x = 0
+
+        return ScreenRect(self.left - offset_x, self.right + offset_x, self.bottom, self.bottom + height)
+
+    def expand_left(self, width, height=None):
+        if height is not None:
+            offset_y = (height - (self.bottom - self.top)) / 2
+        else:
+            offset_y = 0
+
+        return ScreenRect(self.left - width, self.right, self.top - offset_y, self.bottom + offset_y)
+
+    def expand_right(self, width, height=None):
+        if height is not None:
+            offset_y = (height - (self.bottom - self.top)) / 2
+        else:
+            offset_y = 0
+
+        return ScreenRect(self.left, self.right + width, self.top - offset_y, self.bottom + offset_y)
+
+    def expand_top(self, height, width=None):
+        if width is not None:
+            offset_x = (width - (self.right - self.left)) / 2
+        else:
+            offset_x = 0
+
+        return ScreenRect(self.left - offset_x, self.right + offset_x, self.top - height, self.bottom)
+
+    def expand_bottom(self, height, width=None):
+        if width is not None:
+            offset_x = (width - (self.right - self.left)) / 2
+        else:
+            offset_x = 0
+
+        return ScreenRect(self.left - offset_x, self.right + offset_x, self.top, self.bottom + height)
 
     @property
     def topleft(self):

@@ -59,6 +59,9 @@ class ActionImage:
         Returns:
 
         """
+        if not isinstance(cv_image, np.ndarray):
+            raise TypeError('cv_image should be a ndarray from numpy, but got a {}'.format(type(cv_image)))
+
         if rect is not None:
             cv_image = cv_image[rect.top:rect.bottom, rect.left:rect.right]
         cls.log_image('ocr', cv_image, True)
@@ -68,10 +71,11 @@ class ActionImage:
         res_chars = cls.cnocr.ocr_for_single_line(img_high_contrast)
 
         if len(res_chars) == 0:
+            print('ocr result: ')
             return ''
         else:
             result = ''.join(list(map(str, res_chars[0])))
-
+            print('ocr result: {}'.format(result))
             return result
 
     @staticmethod

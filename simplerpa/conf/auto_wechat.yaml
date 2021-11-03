@@ -42,7 +42,7 @@ states:
       image:
         snapshot: wechat
         # 直接在整个微信对话框内搜索
-        template: auto_wechat/group_name.png
+        template: auto_wechat/jindi.png
 #        debug: True
       fail_action: raise_error('没找到【网约沟通】群！')
       scroll:
@@ -98,67 +98,76 @@ states:
               - wait(0.5)
         - id: 42
           name: 图片大图
-          check:
-            image:
-              snapshot: ScreenRect.center_expand(500,1200)
-              template: auto_wechat/completed.png
-              confidence: 0.5
-              auto_scale: (0.5,2)
-#              debug: True
-            result_name: complete_text
+#          check:
+#            image:
+#              snapshot: ScreenRect.center_expand(500,1200)
+#              template: auto_wechat/completed.png
+#              confidence: 0.5
+#              auto_scale: (0.5,2)
+##              debug: True
+#            result_name: complete_text
           find:
             image:
-              snapshot: ScreenRect.center_expand(500,1200)
-              template: auto_wechat/line_in_snapshot.png
+              snapshot: ScreenRect.center_expand(450,1100)
+              template: auto_wechat/icon_time.png
+              confidence: 0.91
 #              scale: complete_text.scale
               detect_all: True
+              auto_scale: (0.8,1.5)
               debug: True
+            fail_action: raise_error('时间标识没找到')
           foreach:
             in_items: find_result
-            item: line
+            item: icon_time
             action:
-              - block = line.rect_on_screen
+              - block = icon_time.rect_on_screen.expand_right(400).expand_bottom(200)
             sub_states:
               - id: 420
                 name: 找时间
-                find:
-                  image:
-                    snapshot: block.snap_bottom(300*complete_text.scale)
-                    template: auto_wechat/icon_time.png
-#                    scale: complete_text.scale
-                    debug: True
+#                find:
+#                  image:
+#                    snapshot: block.snap_bottom(300*complete_text.scale)
+#                    template: auto_wechat/icon_time.png
+##                    scale: complete_text.scale
+#                    debug: True
                 transition:
-                  action: time_str = ocr(find_result.rect_on_screen.snap_right(300*complete_text.scale))
+                  action: time_str = ocr(snapshot(icon_time.rect_on_screen.snap_right(300)))
               - id: 421
                 name: 找起点
                 find:
                   image:
-                    snapshot: block.snap_bottom(300*complete_text.scale)
+                    snapshot: block
                     template: auto_wechat/icon_start.png
 #                    scale: complete_text.scale
+#                    debug: True
+                    fail_action: level_return('起点没找到')
                 transition:
-                  action: start_str = ocr(find_result.rect_on_screen.snap_right(300*complete_text.scale))
+                  action: start_str = ocr(snapshot(find_result.rect_on_screen.snap_right(300)))
               - id: 422
                 name: 找终点
                 find:
                   image:
-                    snapshot: block.snap_bottom(300*complete_text.scale)
+                    snapshot: block
                     template: auto_wechat/icon_end.png
                     priority: color
                     color: (232,102,35)
+                    fail_action: level_return('终点没找到')
                 #                    scale: complete_text.scale
                 transition:
-                  action: end_str = ocr(find_result.rect_on_screen.snap_right(300*complete_text.scale))
+                  action: end_str = ocr(snapshot(find_result.rect_on_screen.snap_right(300)))
               - id: 423
                 name: 找价格
                 find:
                   image:
-                    snapshot: block.snap_bottom(300*complete_text.scale)
+                    snapshot: block
                     template: auto_wechat/icon_rmb.png
 #                    scale: complete_text.scale
+                    debug: True
+                    fail_action: level_return('价格没找到')
+                    auto_scale: (0.7,1.5)
                 transition:
                   action:
-                    - price_str = ocr(find_result.rect_on_screen.snap_right(100*complete_text.scale))
+                    - price_str = ocr(snapshot(find_result.rect_on_screen.snap_right(100)))
                     - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str}, ignore_index=True)
 
     transition:

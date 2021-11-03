@@ -142,7 +142,7 @@ class ImageDetection(Detection):
                     print('result-{}: confidence-{}, scale-{}, priority-{}， {}'.format(index,
                                                                                    result.confidence if result is not None else None,
                                                                                    result.scale,
-                                                                                   result.priority,
+                                                                                   result.priority if hasattr(result,'priority') else None,
                                                                                    rect if result is not None else None))
 
                     cv2.rectangle(image_current, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
