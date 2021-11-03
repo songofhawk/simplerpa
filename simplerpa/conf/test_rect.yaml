@@ -20,8 +20,11 @@ states:
     check:
       image:
         snapshot: !rect l:1470,  r:1970,  t:120,  b:1320
-        template: auto_wechat/completed.png
-        confidence: 0.5
+        template: auto_wechat/icon_end.png
+        confidence: 0.8
+        priority: color
+        color: (232,102,35)
+#        find_all: True
         debug: True
-        auto_scale: (0.7,1.1)
+        auto_scale: (0.5,2)
 #        detect_all: True

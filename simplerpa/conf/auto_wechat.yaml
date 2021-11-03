@@ -43,7 +43,7 @@ states:
         snapshot: wechat
         # 直接在整个微信对话框内搜索
         template: auto_wechat/group_name.png
-        debug: True
+#        debug: True
       fail_action: raise_error('没找到【网约沟通】群！')
       scroll:
         one_page: -200  # 负数是假设目前看到的是列表顶端，内容向上滚
@@ -89,11 +89,12 @@ states:
             image:
               snapshot: head_rect.topleft.offset_rect(60,45, 87, 176)
               template: auto_wechat/snapshot_thumbnail.png
-              confidence: 0.5
+              confidence: 0.4
 #              debug: True
+#            fail_action: level_return(state.id)
           transition:
             action:
-              - click(head_rect.topleft.offset(60,45))
+              - click(head_rect.topleft.offset(80,65))
               - wait(0.5)
         - id: 42
           name: 图片大图
@@ -102,30 +103,64 @@ states:
               snapshot: ScreenRect.center_expand(500,1200)
               template: auto_wechat/completed.png
               confidence: 0.5
-              auto_scale: (0.7,1.1)
+              auto_scale: (0.5,2)
 #              debug: True
             result_name: complete_text
           find:
             image:
               snapshot: ScreenRect.center_expand(500,1200)
               template: auto_wechat/line_in_snapshot.png
-              scale: complete_text.scale
+#              scale: complete_text.scale
               detect_all: True
-#              debug: True
+              debug: True
           foreach:
             in_items: find_result
             item: line
             action:
               - block = line.rect_on_screen
-              - row_1 = block.snap_bottom(60*complete_text.scale)
-              - time_str = ocr(snapshot(row_1))
-              - row_2 = row_1.snap_bottom(50*complete_text.scale)
-              - start_str = ocr(snapshot(row_2))
-              - row_3 = row_2.snap_bottom(55*complete_text.scale)
-              - end_str = ocr(snapshot(row_3))
-              - row_4 = row_3.snap_bottom(60*complete_text.scale).snap_right(150*complete_text.scale)
-              - price_str = ocr(snapshot(row_4))
-              - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str}, ignore_index=True)
+            sub_states:
+              - id: 420
+                name: 找时间
+                find:
+                  image:
+                    snapshot: block.snap_bottom(300*complete_text.scale)
+                    template: auto_wechat/icon_time.png
+#                    scale: complete_text.scale
+                    debug: True
+                transition:
+                  action: time_str = ocr(find_result.rect_on_screen.snap_right(300*complete_text.scale))
+              - id: 421
+                name: 找起点
+                find:
+                  image:
+                    snapshot: block.snap_bottom(300*complete_text.scale)
+                    template: auto_wechat/icon_start.png
+#                    scale: complete_text.scale
+                transition:
+                  action: start_str = ocr(find_result.rect_on_screen.snap_right(300*complete_text.scale))
+              - id: 422
+                name: 找终点
+                find:
+                  image:
+                    snapshot: block.snap_bottom(300*complete_text.scale)
+                    template: auto_wechat/icon_end.png
+                    priority: color
+                    color: (232,102,35)
+                #                    scale: complete_text.scale
+                transition:
+                  action: end_str = ocr(find_result.rect_on_screen.snap_right(300*complete_text.scale))
+              - id: 423
+                name: 找价格
+                find:
+                  image:
+                    snapshot: block.snap_bottom(300*complete_text.scale)
+                    template: auto_wechat/icon_rmb.png
+#                    scale: complete_text.scale
+                transition:
+                  action:
+                    - price_str = ocr(find_result.rect_on_screen.snap_right(100*complete_text.scale))
+                    - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str}, ignore_index=True)
+
     transition:
       wait: 1
   - name: "内容总结"

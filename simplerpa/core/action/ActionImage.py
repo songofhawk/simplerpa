@@ -8,7 +8,7 @@ from cv2 import cv2
 import aircv as ac
 # 话说网易游戏家也有个aircv，功能类似， 还提供了find_sift方法，使用sift算法查找，以后可以试试
 # https://github.com/NetEaseGame/aircv
-from simplerpa.core.data.ScreenRect import ScreenRect
+from simplerpa.core.data.ScreenRect import ScreenRect, Vector
 from simplerpa.objtyping.objtyping import DataObject
 
 
@@ -220,3 +220,16 @@ class ActionImage:
             return passed, None
         else:
             return False, None
+
+    @classmethod
+    def get_color(cls, image, point: Vector):
+        pixel = image[point.y, point.x]
+        b, g, r = pixel
+        return r, g, b
+
+    @classmethod
+    def get_color_sim(cls, image, color, point: Vector):
+        r, g, b = cls.get_color(image, point)
+        diff = abs(color[0] - r) + abs(color[1] - g) + abs(color[2] - b)
+        similarity = 1 - diff / (255 + 255 + 255)
+        return similarity

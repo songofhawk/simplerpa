@@ -105,8 +105,8 @@ class ScreenRect(object):
             self._compute()
 
     def _compute(self):
-        self.center_x = (self.left + self.right) / 2
-        self.center_y = (self.top + self.bottom) / 2
+        self.center_x = (self.left + self.right) // 2
+        self.center_y = (self.top + self.bottom) // 2
         self.center = Vector(self.center_x, self.center_y)
 
     def evaluate(self):

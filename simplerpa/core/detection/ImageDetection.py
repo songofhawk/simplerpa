@@ -27,7 +27,9 @@ class ImageDetectResult(DetectResult):
     clip = None
     clip_on_image: ScreenRect = None
     clip_on_screen: ScreenRect = None
-    scale = None
+    scale: float = None
+    priority: float = None
+
 
 class ImageDetection(Detection):
     """
@@ -60,6 +62,7 @@ class ImageDetection(Detection):
     keep_clip: Action.Evaluation
     auto_scale: Tuple[float, float] = None
     scale: Action.Evaluation = 1
+    priority: str = None
 
     def do_detection(self):
         snapshot_image = ActionScreen.snapshot(self.snapshot.evaluate())
@@ -121,6 +124,13 @@ class ImageDetection(Detection):
         ActionImage.log_image('template', image_template, debug=self.debug)
 
         result_list = ActionImage.find_all_template(image_current, image_template, min_confidence, auto_scale, scale)
+        if self.priority is not None:
+            for result in result_list:
+                if self.priority == "color":
+                    rect = result.rect
+                    sim = ActionImage.get_color_sim(image_current, self.color, rect.center)
+                    result.priority = sim
+            result_list.sort(key=lambda x: x.priority, reverse=True)
         if self.debug:
             if result_list is None:
                 print('image detection result_list: found None')
@@ -129,9 +139,11 @@ class ImageDetection(Detection):
                 print('image detection result_list: found {}'.format(size))
                 for index, result in enumerate(result_list):
                     rect = result.rect
-                    print('result-{}: confidence-{}, {}'.format(index,
-                                                                result.confidence if result is not None else None,
-                                                                rect if result is not None else None))
+                    print('result-{}: confidence-{}, scale-{}, priority-{}， {}'.format(index,
+                                                                                   result.confidence if result is not None else None,
+                                                                                   result.scale,
+                                                                                   result.priority,
+                                                                                   rect if result is not None else None))
 
                     cv2.rectangle(image_current, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
                 ActionImage.log_image('result', image_current, debug=self.debug)
