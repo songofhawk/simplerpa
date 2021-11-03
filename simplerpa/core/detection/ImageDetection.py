@@ -63,6 +63,7 @@ class ImageDetection(Detection):
     auto_scale: Tuple[float, float] = None
     scale: Action.Evaluation = 1
     priority: str = None
+    grayscale: bool = False
 
     def do_detection(self):
         snapshot_image = ActionScreen.snapshot(self.snapshot.evaluate())
@@ -118,9 +119,14 @@ class ImageDetection(Detection):
         else:
             image_current = big_image
 
+        if self.grayscale:
+            image_current = ActionImage.to_grayscale(image_current, high_contrast=True, keep3channel=True)
         print('image detection: \r\n\tsnapshot:{}, template:{}'.format(self.snapshot, self.template))
         ActionImage.log_image('current', image_current, debug=self.debug)
+
         image_template = ActionImage.load_from_file(template_file_path)
+        if self.grayscale:
+            image_template = ActionImage.to_grayscale(image_template, high_contrast=True, keep3channel=True)
         ActionImage.log_image('template', image_template, debug=self.debug)
 
         result_list = ActionImage.find_all_template(image_current, image_template, min_confidence, auto_scale, scale)

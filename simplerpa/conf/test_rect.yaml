@@ -17,11 +17,12 @@ states:
 #        detect_all: True
   - id: 2
     name: "测试"
-    check:
+    find:
       image:
         snapshot: !rect l:1470,  r:1970,  t:120,  b:1320
         template: auto_wechat/icon_rmb.png
-        confidence: 0.6
+#        grayscale: True
+#        confidence: 0.9
 #        priority: color
 #        color: (232,102,35)
         find_all: True

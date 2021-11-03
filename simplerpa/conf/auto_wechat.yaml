@@ -42,7 +42,7 @@ states:
       image:
         snapshot: wechat
         # 直接在整个微信对话框内搜索
-        template: auto_wechat/jindi.png
+        template: auto_wechat/group_name.png
 #        debug: True
       fail_action: raise_error('没找到【网约沟通】群！')
       scroll:
@@ -137,24 +137,26 @@ states:
                 find:
                   image:
                     snapshot: block
-                    template: auto_wechat/icon_start.png
+                    template: auto_wechat/icon_start_small.png
 #                    scale: complete_text.scale
+                    auto_scale: (0.8,1.5)
 #                    debug: True
                     fail_action: level_return('起点没找到')
                 transition:
-                  action: start_str = ocr(snapshot(find_result.rect_on_screen.snap_right(300)))
+                  action: start_str = ocr(snapshot(find_result.rect_on_screen.snap_right(350)))
               - id: 422
                 name: 找终点
                 find:
                   image:
                     snapshot: block
-                    template: auto_wechat/icon_end.png
+                    template: auto_wechat/icon_end_small.png
                     priority: color
+                    auto_scale: (0.8,1.5)
                     color: (232,102,35)
                     fail_action: level_return('终点没找到')
                 #                    scale: complete_text.scale
                 transition:
-                  action: end_str = ocr(snapshot(find_result.rect_on_screen.snap_right(300)))
+                  action: end_str = ocr(snapshot(find_result.rect_on_screen.snap_right(350)))
               - id: 423
                 name: 找价格
                 find:
@@ -162,9 +164,9 @@ states:
                     snapshot: block
                     template: auto_wechat/icon_rmb.png
 #                    scale: complete_text.scale
-                    debug: True
-                    fail_action: level_return('价格没找到')
+#                    debug: True
                     auto_scale: (0.7,1.5)
+                  fail_action: level_return('价格没找到')
                 transition:
                   action:
                     - price_str = ocr(snapshot(find_result.rect_on_screen.snap_right(100)))

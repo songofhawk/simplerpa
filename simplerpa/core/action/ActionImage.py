@@ -64,10 +64,11 @@ class ActionImage:
 
         if rect is not None:
             cv_image = cv_image[rect.top:rect.bottom, rect.left:rect.right]
-        cls.log_image('ocr', cv_image, True)
+
         cv_image_gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         img_high_contrast = cls.grayscale_linear_transformation(cv_image_gray, 0, 255)
 
+        cls.log_image('ocr', img_high_contrast, True)
         res_chars = cls.cnocr.ocr_for_single_line(img_high_contrast)
 
         if len(res_chars) == 0:
@@ -78,8 +79,8 @@ class ActionImage:
             print('ocr result: {}'.format(result))
             return result
 
-    @staticmethod
-    def grayscale_linear_transformation(img_gray, new_min, new_max):
+    @classmethod
+    def grayscale_linear_transformation(cls, img_gray, new_min=0, new_max=255):
         if img_gray is None:
             return None
         old_max = img_gray.max()
@@ -237,3 +238,15 @@ class ActionImage:
         diff = abs(color[0] - r) + abs(color[1] - g) + abs(color[2] - b)
         similarity = 1 - diff / (255 + 255 + 255)
         return similarity
+
+    @classmethod
+    def to_grayscale(cls, image, high_contrast=False, keep3channel=False):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        if high_contrast:
+            gray = cls.grayscale_linear_transformation(gray)
+        gray = cv2.Canny(gray, 100, 200)
+
+        if keep3channel:
+            return cv2.merge((gray, gray, gray))
+        else:
+            return gray
