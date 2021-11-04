@@ -250,3 +250,48 @@ class ActionImage:
             return cv2.merge((gray, gray, gray))
         else:
             return gray
+
+    @classmethod
+    def to_binary(cls, image, foreground, tolerance, single_channel=False):
+        img = image.copy()
+        fr_bgr = np.array([foreground[2], foreground[1], foreground[0]])
+        diff = int(255 * tolerance)
+        fr_min = fr_bgr - diff
+        fr_max = fr_bgr + diff
+        mask = cv2.inRange(img, fr_min, fr_max)
+        img[mask > 0] = (0, 0, 0)
+        img[mask == 0] = (255, 255, 255)
+        if single_channel:
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        return img
+
+    @classmethod
+    def find_content_parts(cls, image, foreground, tolerance):
+        img_bin = cls.to_binary(image, foreground, tolerance, single_channel=True)
+        img_erode = cls.erode(img_bin)
+        rect_list = cls.get_connected_area(img_erode)
+        parts = cls.get_parts(image, rect_list)
+        return parts
+
+    @classmethod
+    def erode(cls, img):
+        return cv2.erode(img, None, iterations=2)
+
+    @classmethod
+    def get_connected_area(cls, img):
+        _, _, boxes, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(img))
+        rect_list = []
+        for box in boxes:
+            x, y, width, height, _ = box
+            rect = ScreenRect(x, x + width, y, y + height)
+            rect_list.append(rect)
+        rect_list.sort(key=lambda r: r.top, reverse=False)
+        return rect_list
+
+    @classmethod
+    def get_parts(cls, img, rect_list):
+        parts = []
+        for rect in rect_list:
+            part = img[rect.top:rect.bottom, rect.left, rect.right]
+            parts.append(part)
+        return parts

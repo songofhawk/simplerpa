@@ -42,13 +42,7 @@ class ToBinary(StateBlockBase):
 
     def convert(self, image):
         # bk_bgr = np.array([self.background[2], self.background[1], self.background[0]])
-        fr_bgr = np.array([self.foreground[2], self.foreground[1], self.foreground[0]])
-        diff = int(255 * self.tolerance)
-        fr_min = fr_bgr - diff
-        fr_max = fr_bgr + diff
-        mask = cv2.inRange(image, fr_min, fr_max)
-        image[mask > 0] = (0, 0, 0)
-        image[mask == 0] = (255, 255, 255)
+        return ActionImage.to_binary(image, self.foreground, self.tolerance)
 
 
 class ImageDetection(Detection):
@@ -145,14 +139,14 @@ class ImageDetection(Detection):
         if self.grayscale:
             image_current = ActionImage.to_grayscale(image_current, high_contrast=True, keep3channel=True)
         if self.to_binary is not None:
-            self.to_binary.convert(image_current)
+            image_current = self.to_binary.convert(image_current)
         ActionImage.log_image('current', image_current, debug=self.debug)
 
         image_template = ActionImage.load_from_file(template_file_path)
         if self.grayscale:
             image_template = ActionImage.to_grayscale(image_template, high_contrast=True, keep3channel=True)
         if self.to_binary is not None:
-            self.to_binary.convert(image_template)
+            image_template = self.to_binary.convert(image_template)
         ActionImage.log_image('template', image_template, debug=self.debug)
 
         result_list = ActionImage.find_all_template(image_current, image_template, min_confidence, auto_scale, scale)
