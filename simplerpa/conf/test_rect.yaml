@@ -16,11 +16,33 @@ states:
 #        debug: True
 #        detect_all: True
   - id: 2
-    name: "测试"
+    name: "测试查找不准确的图片"
     find:
       image:
         snapshot: !rect l:1470,  r:1970,  t:120,  b:1320
-        template: auto_wechat/icon_rmb.png
+        template: auto_wechat/line_in_snapshot.png
+        to_binary:
+#          background: (255,255,255)
+          foreground: (239,239,239)
+          tolerance: 0.02
+#        grayscale: True
+#        confidence: 0.9
+#        priority: color
+#        color: (232,102,35)
+        find_all: True
+        debug: True
+        auto_scale: (0.6,1.5)
+#        detect_all: True
+  - id: 3
+    name: "测试查找特定窗口"
+    find:
+      window:
+        snapshot: !rect l:1470,  r:1970,  t:120,  b:1320
+        template: auto_wechat/line_in_snapshot.png
+        to_binary:
+#          background: (255,255,255)
+          foreground: (239,239,239)
+          tolerance: 0.02
 #        grayscale: True
 #        confidence: 0.9
 #        priority: color

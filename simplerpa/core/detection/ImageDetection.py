@@ -2,7 +2,8 @@ from typing import Tuple
 
 import PIL
 import cv2
-
+import numpy as np
+from core.data.StateBlockBase import StateBlockBase
 from simplerpa.core.action.ActionImage import ActionImage
 from simplerpa.core.action.ActionScreen import ActionScreen
 from simplerpa.core.data import Action
@@ -29,6 +30,25 @@ class ImageDetectResult(DetectResult):
     clip_on_screen: ScreenRect = None
     scale: float = None
     priority: float = None
+
+
+class ToBinary(StateBlockBase):
+    # background: Tuple[int, int, int] = (255, 255, 255)
+    foreground: Tuple[int, int, int] = (0, 0, 0)
+    tolerance: float = 0.01
+
+    def __init__(self):
+        pass
+
+    def convert(self, image):
+        # bk_bgr = np.array([self.background[2], self.background[1], self.background[0]])
+        fr_bgr = np.array([self.foreground[2], self.foreground[1], self.foreground[0]])
+        diff = int(255 * self.tolerance)
+        fr_min = fr_bgr - diff
+        fr_max = fr_bgr + diff
+        mask = cv2.inRange(image, fr_min, fr_max)
+        image[mask > 0] = (0, 0, 0)
+        image[mask == 0] = (255, 255, 255)
 
 
 class ImageDetection(Detection):
@@ -64,6 +84,7 @@ class ImageDetection(Detection):
     scale: Action.Evaluation = 1
     priority: str = None
     grayscale: bool = False
+    to_binary: ToBinary = None
 
     def do_detection(self):
         snapshot_image = ActionScreen.snapshot(self.snapshot.evaluate())
@@ -119,14 +140,19 @@ class ImageDetection(Detection):
         else:
             image_current = big_image
 
+        print('image detection: \r\n\tsnapshot:{}, template:{}'.format(self.snapshot, self.template))
+
         if self.grayscale:
             image_current = ActionImage.to_grayscale(image_current, high_contrast=True, keep3channel=True)
-        print('image detection: \r\n\tsnapshot:{}, template:{}'.format(self.snapshot, self.template))
+        if self.to_binary is not None:
+            self.to_binary.convert(image_current)
         ActionImage.log_image('current', image_current, debug=self.debug)
 
         image_template = ActionImage.load_from_file(template_file_path)
         if self.grayscale:
             image_template = ActionImage.to_grayscale(image_template, high_contrast=True, keep3channel=True)
+        if self.to_binary is not None:
+            self.to_binary.convert(image_template)
         ActionImage.log_image('template', image_template, debug=self.debug)
 
         result_list = ActionImage.find_all_template(image_current, image_template, min_confidence, auto_scale, scale)
@@ -146,10 +172,12 @@ class ImageDetection(Detection):
                 for index, result in enumerate(result_list):
                     rect = result.rect
                     print('result-{}: confidence-{}, scale-{}, priority-{}， {}'.format(index,
-                                                                                   result.confidence if result is not None else None,
-                                                                                   result.scale,
-                                                                                   result.priority if hasattr(result,'priority') else None,
-                                                                                   rect if result is not None else None))
+                                                                                       result.confidence if result is not None else None,
+                                                                                       result.scale,
+                                                                                       result.priority if hasattr(
+                                                                                           result,
+                                                                                           'priority') else None,
+                                                                                       rect if result is not None else None))
 
                     cv2.rectangle(image_current, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
                 ActionImage.log_image('result', image_current, debug=self.debug)
