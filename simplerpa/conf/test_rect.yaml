@@ -42,19 +42,16 @@ states:
         start:
           template: auto_wechat/form_start.png
           to_binary:
-  #          background: (255,255,255)
             foreground: (153,153,153)
-            tolerance: 0.05
-          detect_all: True
-          debug: True
-          auto_scale: (1.2,1.5)
-        end:
-          template: auto_wechat/form_end.png
-          to_binary:
-  #          background: (255,255,255)
-            foreground: (241,98,36)
             tolerance: 0.1
           detect_all: True
           debug: True
-          auto_scale: (1.2,1.5)
-#        detect_all: True
+          auto_scale: (1,1.5)
+#        end:
+#          template: auto_wechat/form_end.png
+#          to_binary:
+#            foreground: (241,98,36)
+#            tolerance: 0.1
+#          detect_all: True
+#          debug: True
+##          auto_scale: (1.2,1.5)
