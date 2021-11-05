@@ -37,6 +37,7 @@ states:
     name: "测试分割窗口"
     extractor:
       snapshot: !rect l:1470,  r:1970,  t:120,  b:1320
+
       part_splitter:
         name: "用分割符切割窗口"
         start:
