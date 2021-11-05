@@ -255,6 +255,10 @@ class ActionImage:
     def to_binary(cls, image, foreground, tolerance, single_channel=False):
         img = image.copy()
         fr_bgr = np.array([foreground[2], foreground[1], foreground[0]])
+        channel = image.shape[2]
+        if channel == 4:
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+
         diff = int(255 * tolerance)
         fr_min = fr_bgr - diff
         fr_max = fr_bgr + diff

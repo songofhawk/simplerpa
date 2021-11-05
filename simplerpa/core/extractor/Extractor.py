@@ -11,22 +11,60 @@ class PartSplitter(StateBlockBase):
 
     def split_parts(self, snapshot, image):
         image_current = image
+        if self.start is None and self.end is None:
+            print("start and end template are all none in splitter '{}'".format(self.name))
+            return
+
+        start_found_list = None
         if self.start is not None:
             self.start.snapshot = snapshot
             start_found_list = self.start.do_detection(image_current)
+            if start_found_list is None:
+                print("start template not found in splitter '{}'".format(self.name))
+        if start_found_list is not None:
+            start_found_list.sort(key=lambda x: x.rect_on_image.top, reverse=False)
+
+        end_found_list = None
+        if self.end is not None:
+            self.end.snapshot = snapshot
+            end_found_list = self.end.do_detection(image_current)
+            if end_found_list is None:
+                print("end template not found in splitter '{}'".format(self.name))
         else:
             return None
+        if end_found_list is not None:
+            end_found_list.sort(key=lambda x: x.rect_on_image.top, reverse=False)
 
-        start_found_list.sort(key=lambda x: x.rect_on_image.top, reverse=False)
+        start_len = len(start_found_list) if start_found_list is not None else 0
+        end_len = len(end_found_list) if end_found_list is not None else 0
 
-        pre_start_top = None
+        count = min(start_len, end_len)
+        pre_top = None
+        pre_bottom = None
         parts = []
-        for start_found in start_found_list:
-            start_top = start_found.rect_on_image.top
-            if pre_start_top is not None:
-                part = image[pre_start_top:start_top, :]
-                parts.append(part)
-            pre_start_top = start_top
+        for i in range(count):
+            start_top = start_found_list[i].rect_on_image.top if self.start is not None else None
+            end_bottom = end_found_list[i].rect_on_image.bottom if self.end is not None else None
+            if self.start is not None and self.end is None:
+                if pre_top is not None:
+                    part = image[pre_top:start_top, :]
+                    parts.append(part)
+                    pre_top = start_top
+            elif self.start is None and self.end is not None:
+                if pre_bottom is not None:
+                    part = image[pre_bottom:end_bottom, :]
+                    parts.append(part)
+                pre_bottom = end_bottom
+            else:
+                if start_top < end_bottom:
+                    part = image[start_top:end_bottom, :]
+                    parts.append(part)
+                else:
+                    if pre_top is not None:
+                        part = image[pre_top:end_bottom, :]
+                        parts.append(part)
+                    pre_top = start_top
+
         return parts
 
 
