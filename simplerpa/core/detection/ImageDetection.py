@@ -80,9 +80,10 @@ class ImageDetection(Detection):
     grayscale: bool = False
     to_binary: ToBinary = None
 
-    def do_detection(self):
-        snapshot_image = ActionScreen.snapshot(self.snapshot.evaluate())
-        screen_image = ActionImage.pil_to_cv(snapshot_image)
+    def do_detection(self, source_image=None):
+        if source_image is None:
+            snapshot_image = ActionScreen.snapshot(self.snapshot.evaluate())
+            source_image = ActionImage.pil_to_cv(snapshot_image)
 
         if self.scale is not None:
             scale = self.scale.evaluate_exp() if isinstance(self.scale, Action.Evaluation) else self.scale
@@ -90,10 +91,10 @@ class ImageDetection(Detection):
             scale = None
 
         if self.template is not None:
-            res = self.image_in(self._get_template_full_path(), screen_image, self.confidence, self.auto_scale,
+            res = self.image_in(self._get_template_full_path(), source_image, self.confidence, self.auto_scale,
                                 scale)
         elif self.rect is not None:
-            res = self.rect_in(self.rect, self.color, screen_image, self.confidence)
+            res = self.rect_in(self.rect, self.color, source_image, self.confidence)
         else:
             raise RuntimeError(
                 "ImageDetection should has either template or rect property, but all are None: {}".format(self))
@@ -103,11 +104,11 @@ class ImageDetection(Detection):
         elif isinstance(res, list):
             results = []
             for one in res:
-                result = self._gen_result(one, screen_image)
+                result = self._gen_result(one, source_image)
                 results.append(result)
             return results
         else:
-            return self._gen_result(res, screen_image)  # rect是相对偏移量
+            return self._gen_result(res, source_image)  # rect是相对偏移量
 
     def _gen_result(self, res, screen_image):
         result = ImageDetectResult()

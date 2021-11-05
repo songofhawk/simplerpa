@@ -5,6 +5,7 @@ from typing import List
 from .StateBlockBase import StateBlockBase
 from simplerpa.core.data.Action import Action, Execution, Evaluation
 from simplerpa.core.data.Find import Find
+from ..extractor import Extractor
 
 
 class To(StateBlockBase):
@@ -68,6 +69,7 @@ class State(StateBlockBase):
     action: Execution
     transition: Transition
     foreach: ForEach
+    extractor: Extractor.Extractor = None
 
 
 class ForEach(StateBlockBase):

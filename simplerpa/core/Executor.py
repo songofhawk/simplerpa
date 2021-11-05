@@ -1,5 +1,6 @@
 import time
 
+from simplerpa.core.extractor.Extractor import Extractor
 from simplerpa.core.Variable import Variable
 from simplerpa.core.action.ActionScreen import ActionScreen
 from simplerpa.core.const import STATE, FIND_RESULT
@@ -67,6 +68,10 @@ class Executor:
 
         # 暂时find先不执行影响流程的fail_action（is_flow_control==True)
         self._do_find(the_state.find, True)
+
+        extractor = the_state.extractor
+        if isinstance(extractor, Extractor):
+            extractor.do()
 
         foreach = the_state.foreach
         if isinstance(foreach, ForEach):
