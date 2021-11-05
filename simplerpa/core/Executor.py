@@ -69,9 +69,9 @@ class Executor:
         # 暂时find先不执行影响流程的fail_action（is_flow_control==True)
         self._do_find(the_state.find, True)
 
-        extractor = the_state.extractor
-        if isinstance(extractor, Extractor):
-            extractor.do()
+        form = the_state.form
+        if isinstance(form, Extractor):
+            form.do()
 
         foreach = the_state.foreach
         if isinstance(foreach, ForEach):

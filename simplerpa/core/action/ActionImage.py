@@ -261,9 +261,9 @@ class ActionImage:
 
         diff = int(255 * tolerance)
         fr_min = fr_bgr - diff
-        fr_min = fr_min if fr_min > 0 else 0
+        fr_min[fr_min < 0] = 0
         fr_max = fr_bgr + diff
-        fr_max = fr_max if fr_max < 255 else 255
+        fr_max[fr_max > 255] = 255
         mask = cv2.inRange(img, fr_min, fr_max)
         img[mask > 0] = (0, 0, 0)
         img[mask == 0] = (255, 255, 255)
@@ -298,6 +298,6 @@ class ActionImage:
     def get_parts(cls, img, rect_list):
         parts = []
         for rect in rect_list:
-            part = img[rect.top:rect.bottom, rect.left, rect.right]
+            part = img[rect.top:rect.bottom, rect.left:rect.right]
             parts.append(part)
         return parts

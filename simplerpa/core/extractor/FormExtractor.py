@@ -15,4 +15,6 @@ class FormExtractor(Extractor):
         super().__init__()
 
     def do_once(self, image):
-        ActionImage.find_content_parts(image, )
+        fields = ActionImage.find_content_parts(image, self.foreground, self.tolerance)
+        for field in fields:
+            ActionImage.log_image('field', field)
