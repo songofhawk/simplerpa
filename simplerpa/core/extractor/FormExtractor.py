@@ -24,7 +24,7 @@ class FormField(StateBlockBase):
         if result is None:
             raise RuntimeError('field "{}" not found!'.format(self.name))
         rect = Action.call_once(self.position, {'feature_rect': result.rect_on_image})
-        content_img = image[rect.top:rect.bottom, rect.left:rect.right]
+        content_img = ActionImage.sub_image(image, rect)
         ActionImage.log_image('field_{}_content'.format(self.name), content_img, debug=self.debug)
         main_part, main_part_bin = ActionImage.find_main_part(content_img, self.foreground, self.tolerance)
         ActionImage.log_image('field_{}_main_part'.format(self.name), main_part, debug=self.debug)
@@ -32,7 +32,7 @@ class FormField(StateBlockBase):
         # 这里已经是二值图像了，所以背景颜色一定是255（只能取0和255两种颜色）
         content = ""
         for row_img in rows_img:
-            ActionImage.log_image('field_{}_main_part'.format(self.name), row_img, debug=self.debug)
+            ActionImage.log_image('field_{}_row'.format(self.name), row_img, debug=self.debug)
             row_txt = ActionImage.ocr(row_img)
             content += row_txt
         return content

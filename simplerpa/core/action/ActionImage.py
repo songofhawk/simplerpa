@@ -321,7 +321,7 @@ class ActionImage:
 
     @classmethod
     def split_rows(cls, img_gray, background):
-        result_list = cls.find_rect(img_gray, Vector(2, img_gray.shape[0]), background, find_all=True)
+        result_list = cls.find_rect(img_gray, Vector(img_gray.shape[1], 2), background, find_all=True)
         space = None
         spaces = []
         for result in result_list:
@@ -378,3 +378,13 @@ class ActionImage:
             part = img[rect.top:rect.bottom, rect.left:rect.right]
             blocks.append(part)
         return blocks
+
+    @classmethod
+    def sub_image(cls, img, rect):
+        width = img.shape[1]
+        height = img.shape[0]
+        l = rect.left
+        r = rect.right
+        t = rect.top
+        b = rect.bottom
+        return img[t if t > 0 else 0:b if b < height else height, l if l > 0 else 0:r if r < width else width]

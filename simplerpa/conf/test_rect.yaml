@@ -46,9 +46,9 @@ states:
               foreground: (155,155,155)
               tolerance: 0.1
             debug: True
-          position: feature_rect.snap_right(350, 3)
-          foreground: (25,25,25)
-          tolerance: 0.1
+          position: feature_rect.snap_right(350, 6)
+          foreground: (155,155,155)
+          tolerance: 0.2
           debug: True
         - name: start
           feature:
