@@ -37,13 +37,45 @@ states:
     name: "测试分割窗口"
     form:
       snapshot: !rect l:1470,  r:1970,  t:120,  b:1320
+      fields:
+        - name: time
+          feature:
+            teamplate: auto_wechat/icon_time.png
+            auto_scale: (0.8,1.5)
+            to_binary:
+              foreground: (60,60,60)
+              tolerance: 0.1
+          position: feature_rect.snap_right(350)
+          foreground: (25,25,25)
+          tolerance: 0.1
+        - name: start
+          feature:
+            teamplate: auto_wechat/icon_start.png
+            auto_scale: (0.8,1.5)
+            to_binary:
+              foreground: (25,25,25)
+              tolerance: 0.1
+          position: feature_rect.snap_right(350)
+          foreground: (25,25,25)
+          tolerance: 0.1
+        - name: end
+          feature:
+            teamplate: auto_wechat/icon_end.png
+            auto_scale: (0.8,1.5)
+            to_binary:
+              foreground: (25,25,25)
+              tolerance: 0.1
+          position: feature_rect.snap_right(350)
+          foreground: (25,25,25)
+          tolerance: 0.1
 
       part_splitter:
         name: "用分割符切割窗口"
         start:
           template: auto_wechat/form_start.png
           to_binary:
-            foreground: (153,153,153)
+#            foreground: (153,153,153)
+            background: (255,255,255)
             tolerance: 0.1
           detect_all: True
           debug: True

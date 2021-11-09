@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Tuple
+from typing import Tuple, List
 
 import numpy as np
 from cnocr import CnOcr
@@ -153,10 +153,16 @@ class ActionImage:
 
     @classmethod
     def find_rect(cls, image_source, rect, color, find_all=True, debug=False):
-        return cls.sliding_window(image_source, rect,
-                                  lambda image_block, top, left: cls._match_color(image_block, color),
-                                  find_all=find_all,
-                                  debug=debug)
+        if isinstance(color, Tuple):
+            return cls.sliding_window(image_source, rect,
+                                      lambda image_block, top, left: cls._match_color(image_block, color),
+                                      find_all=find_all,
+                                      debug=debug)
+        else:
+            return cls.sliding_window(image_source, rect,
+                                      lambda image_block, top, left: cls._match_bin_bright(image_block, color),
+                                      find_all=find_all,
+                                      debug=debug)
 
     @staticmethod
     def sliding_window(image_source, win_rect, handler, find_all=True, step_x=1, step_y=1, debug=False, overlap=False):
@@ -208,6 +214,11 @@ class ActionImage:
         return results
 
     @staticmethod
+    def _match_bin_bright(image_bin, bright):
+        passed = np.all(image_bin == bright)
+        return passed, None
+
+    @staticmethod
     def _match_color(image, color):
         img_sum = np.sum(image, axis=2)
         r, g, b = color
@@ -252,36 +263,102 @@ class ActionImage:
             return gray
 
     @classmethod
-    def to_binary(cls, image, foreground, tolerance, single_channel=False):
+    def to_binary(cls, image, foreground=None, background=None, tolerance=0.1, single_channel=False):
         img = image.copy()
-        fr_bgr = np.array([foreground[2], foreground[1], foreground[0]])
+        if foreground is not None:
+            color_bgr = np.array([foreground[2], foreground[1], foreground[0]])
+        elif background is not None:
+            color_bgr = np.array([background[2], background[1], background[0]])
+        else:
+            raise RuntimeError("either foreground or background should be not None!")
+
         channel = image.shape[2]
         if channel == 4:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
         diff = int(255 * tolerance)
-        fr_min = fr_bgr - diff
-        fr_min[fr_min < 0] = 0
-        fr_max = fr_bgr + diff
-        fr_max[fr_max > 255] = 255
-        mask = cv2.inRange(img, fr_min, fr_max)
-        img[mask > 0] = (0, 0, 0)
-        img[mask == 0] = (255, 255, 255)
+        color_min = color_bgr - diff
+        color_min[color_min < 0] = 0
+        color_max = color_bgr + diff
+        color_max[color_max > 255] = 255
+        mask = cv2.inRange(img, color_min, color_max)
+        if foreground is not None:
+            img[mask > 0] = (0, 0, 0)
+            img[mask == 0] = (255, 255, 255)
+        else:
+            img[mask > 0] = (255, 255, 255)
+            img[mask == 0] = (0, 0, 0)
+
         if single_channel:
             img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+        ActionImage.log_image('to_binary', img)
         return img
 
     @classmethod
-    def find_content_parts(cls, image, foreground, tolerance):
-        img_bin = cls.to_binary(image, foreground, tolerance, single_channel=True)
+    def find_content_parts(cls, image, foreground, tolerance) -> List[np.ndarray]:
+        # ActionImage.log_image('1.color', image)
+        img_bin = cls.to_binary(image, foreground=foreground, tolerance=tolerance, single_channel=True)
+        # ActionImage.log_image('2.binary', img_bin)
         img_erode = cls.erode(img_bin)
+        # ActionImage.log_image('3.erode', img_erode)
         rect_list = cls.get_connected_area(img_erode)
-        parts = cls.get_parts(image, rect_list)
-        return parts
+        blocks = cls.get_blocks(image, rect_list)
+        return blocks
+
+    @classmethod
+    def find_main_part(cls, image, foreground, tolerance) -> (ScreenRect, np.ndarray):
+        # ActionImage.log_image('1.color', image)
+        img_bin = cls.to_binary(image, foreground=foreground, tolerance=tolerance, single_channel=True)
+        # ActionImage.log_image('2.binary', img_bin)
+        img_erode = cls.erode(img_bin)
+        # ActionImage.log_image('3.erode', img_erode)
+        rect_list = cls.get_connected_area(img_erode)
+        main_rect = max(rect_list, key=lambda rect: rect.area)
+        main_part = image[main_rect.top:main_rect.bottom, main_rect.left:main_rect.right]
+        main_part_bin = img_bin[main_rect.top:main_rect.bottom, main_rect.left:main_rect.right]
+        return main_part, main_part_bin
+
+    @classmethod
+    def split_rows(cls, img_bin, background):
+        result_list = cls.find_rect(img_bin, Vector(2, img_bin.shape[0]), background, find_all=True)
+        space = None
+        spaces = []
+        for result in result_list:
+            # 合并相邻的空白
+            rect = result.rect
+            if space is None:
+                space = [rect.top, rect.bottom]
+                continue
+            if rect.top <= space[1]+1:
+                space[1] = rect.bottom
+            else:
+                spaces.append(space)
+                space = [rect.top, rect.bottom]
+
+        rows = []
+        pre_space = None
+        for space in spaces:
+            # 获取有内容的行坐标
+            if pre_space is None:
+                if space[0] != 0:
+                    rows.append([0, space[0]])
+                pre_space = space
+                continue
+            else:
+                rows.append([pre_space[1] + 1, space[0]])
+        height = img_bin.shape[0]
+        if space[1] < height - 1:
+            rows.append([space[1]+1, height - 1])
+
+        rows_img = []
+        for row in rows:
+            rows_img.append(img_bin[row[0]:row[1], :])
+        return rows_img
 
     @classmethod
     def erode(cls, img):
-        return cv2.erode(img, None, iterations=2)
+        return cv2.erode(img, None, iterations=5)
 
     @classmethod
     def get_connected_area(cls, img):
@@ -295,9 +372,9 @@ class ActionImage:
         return rect_list
 
     @classmethod
-    def get_parts(cls, img, rect_list):
-        parts = []
+    def get_blocks(cls, img, rect_list):
+        blocks = []
         for rect in rect_list:
             part = img[rect.top:rect.bottom, rect.left:rect.right]
-            parts.append(part)
-        return parts
+            blocks.append(part)
+        return blocks

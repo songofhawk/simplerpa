@@ -33,8 +33,8 @@ class ImageDetectResult(DetectResult):
 
 
 class ToBinary(StateBlockBase):
-    # background: Tuple[int, int, int] = (255, 255, 255)
-    foreground: Tuple[int, int, int] = (0, 0, 0)
+    background: Tuple[int, int, int] = None
+    foreground: Tuple[int, int, int] = None
     tolerance: float = 0.01
 
     def __init__(self):
@@ -42,7 +42,7 @@ class ToBinary(StateBlockBase):
 
     def convert(self, image):
         # bk_bgr = np.array([self.background[2], self.background[1], self.background[0]])
-        return ActionImage.to_binary(image, self.foreground, self.tolerance)
+        return ActionImage.to_binary(image, self.foreground, self.background, self.tolerance)
 
 
 class ImageDetection(Detection):
