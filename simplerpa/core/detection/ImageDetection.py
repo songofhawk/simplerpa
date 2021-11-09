@@ -88,7 +88,7 @@ class ImageDetection(Detection):
         if self.scale is not None:
             scale = self.scale.evaluate_exp() if isinstance(self.scale, Action.Evaluation) else self.scale
         else:
-            scale = None
+            scale = 1
 
         if self.template is not None:
             res = self.image_in(self._get_template_full_path(), source_image, self.confidence, self.auto_scale,
@@ -113,7 +113,7 @@ class ImageDetection(Detection):
     def _gen_result(self, res, screen_image):
         result = ImageDetectResult()
         result.rect_on_image = res.rect
-        result.rect_on_screen = res.rect.offset_from(self.snapshot)
+        result.rect_on_screen = res.rect.offset_from(self.snapshot) if self.snapshot is not None else None
         result.image = screen_image
         result.scale = res.scale
         self.get_clip(result)

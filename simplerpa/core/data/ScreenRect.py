@@ -108,6 +108,9 @@ class ScreenRect(object):
         self.center_x = (self.left + self.right) // 2
         self.center_y = (self.top + self.bottom) // 2
         self.center = Vector(self.center_x, self.center_y)
+        self.width = self.right - self.left
+        self.height = self.bottom - self.top
+        self.area = self.width * self.height
 
     def evaluate(self):
         if not self.has_exp:
@@ -199,36 +202,16 @@ class ScreenRect(object):
 
         return ScreenRect(left, right, top, bottom)
 
-    def snap_left(self, width, height=None):
-        if height is not None:
-            offset_y = (height - (self.bottom - self.top)) / 2
-        else:
-            offset_y = 0
-
+    def snap_left(self, width, offset_y=0):
         return ScreenRect(self.left - width, self.left, self.top - offset_y, self.bottom + offset_y)
 
-    def snap_right(self, width, height=None):
-        if height is not None:
-            offset_y = (height - (self.bottom - self.top)) / 2
-        else:
-            offset_y = 0
-
+    def snap_right(self, width, offset_y=0):
         return ScreenRect(self.right, self.right + width, self.top - offset_y, self.bottom + offset_y)
 
-    def snap_top(self, height, width=None):
-        if width is not None:
-            offset_x = (width - (self.right - self.left)) / 2
-        else:
-            offset_x = 0
-
+    def snap_top(self, height, offset_x=0):
         return ScreenRect(self.left - offset_x, self.right + offset_x, self.top - height, self.top)
 
-    def snap_bottom(self, height, width=None):
-        if width is not None:
-            offset_x = (width - (self.right - self.left)) / 2
-        else:
-            offset_x = 0
-
+    def snap_bottom(self, height, offset_x=0):
         return ScreenRect(self.left - offset_x, self.right + offset_x, self.bottom, self.bottom + height)
 
     def expand_left(self, width, height=None):

@@ -40,30 +40,32 @@ states:
       fields:
         - name: time
           feature:
-            teamplate: auto_wechat/icon_time.png
+            template: auto_wechat/icon_time.png
             auto_scale: (0.8,1.5)
             to_binary:
-              foreground: (60,60,60)
+              foreground: (155,155,155)
               tolerance: 0.1
-          position: feature_rect.snap_right(350)
+            debug: True
+          position: feature_rect.snap_right(350, 3)
           foreground: (25,25,25)
           tolerance: 0.1
+          debug: True
         - name: start
           feature:
-            teamplate: auto_wechat/icon_start.png
+            template: auto_wechat/icon_start_big.png
             auto_scale: (0.8,1.5)
             to_binary:
-              foreground: (25,25,25)
+              foreground: (64,61,80)
               tolerance: 0.1
           position: feature_rect.snap_right(350)
           foreground: (25,25,25)
           tolerance: 0.1
         - name: end
           feature:
-            teamplate: auto_wechat/icon_end.png
+            template: auto_wechat/icon_end_big.png
             auto_scale: (0.8,1.5)
             to_binary:
-              foreground: (25,25,25)
+              foreground: (237,104,44)
               tolerance: 0.1
           position: feature_rect.snap_right(350)
           foreground: (25,25,25)
@@ -74,11 +76,11 @@ states:
         start:
           template: auto_wechat/form_start.png
           to_binary:
-#            foreground: (153,153,153)
-            background: (255,255,255)
+            foreground: (153,153,153)
+#            background: (255,255,255)
             tolerance: 0.1
           detect_all: True
-          debug: True
+#          debug: True
           auto_scale: (1,1.5)
 #        end:
 #          template: auto_wechat/form_end.png
@@ -88,3 +90,12 @@ states:
 #          detect_all: True
 #          debug: True
 ##          auto_scale: (1.2,1.5)
+
+#  - id: 4
+#    name: "测试在二值图像中查找icon_time"
+#    check:
+#      image:
+#        snapshot: !rect l:1443, r:1943, t:669, b:945
+#        template: auto_wechat/icon_time_bin.png
+##        confidence: 0.3
+#        debug: True

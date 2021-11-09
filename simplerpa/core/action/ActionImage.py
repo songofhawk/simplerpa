@@ -101,7 +101,6 @@ class ActionImage:
         else:
             resized = cv2.resize(image_template, (int(width * scale), int(height * scale)),
                                  interpolation=cv2.INTER_CUBIC)
-
         match_results = ac.find_all_template(image_current, resized, min_confidence)
 
         if match_results is None or len(match_results) == 0:
@@ -166,7 +165,8 @@ class ActionImage:
 
     @staticmethod
     def sliding_window(image_source, win_rect, handler, find_all=True, step_x=1, step_y=1, debug=False, overlap=False):
-        rows, cols, _ = image_source.shape
+        rows = image_source.shape[0]
+        cols = image_source.shape[1]
         win_width = win_rect.x
         win_height = win_rect.y
         results = []
@@ -292,7 +292,7 @@ class ActionImage:
         if single_channel:
             img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
-        ActionImage.log_image('to_binary', img)
+        # ActionImage.log_image('to_binary', img)
         return img
 
     @classmethod
@@ -320,8 +320,8 @@ class ActionImage:
         return main_part, main_part_bin
 
     @classmethod
-    def split_rows(cls, img_bin, background):
-        result_list = cls.find_rect(img_bin, Vector(2, img_bin.shape[0]), background, find_all=True)
+    def split_rows(cls, img_gray, background):
+        result_list = cls.find_rect(img_gray, Vector(2, img_gray.shape[0]), background, find_all=True)
         space = None
         spaces = []
         for result in result_list:
@@ -330,7 +330,7 @@ class ActionImage:
             if space is None:
                 space = [rect.top, rect.bottom]
                 continue
-            if rect.top <= space[1]+1:
+            if rect.top <= space[1] + 1:
                 space[1] = rect.bottom
             else:
                 spaces.append(space)
@@ -347,13 +347,13 @@ class ActionImage:
                 continue
             else:
                 rows.append([pre_space[1] + 1, space[0]])
-        height = img_bin.shape[0]
+        height = img_gray.shape[0]
         if space[1] < height - 1:
-            rows.append([space[1]+1, height - 1])
+            rows.append([space[1] + 1, height - 1])
 
         rows_img = []
         for row in rows:
-            rows_img.append(img_bin[row[0]:row[1], :])
+            rows_img.append(img_gray[row[0]:row[1], :])
         return rows_img
 
     @classmethod

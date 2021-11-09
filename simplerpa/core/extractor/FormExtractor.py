@@ -21,12 +21,18 @@ class FormField(StateBlockBase):
 
     def get_content(self, image):
         result = self.feature.do_detection(image)
+        if result is None:
+            raise RuntimeError('field "{}" not found!'.format(self.name))
         rect = Action.call_once(self.position, {'feature_rect': result.rect_on_image})
-        content_img = image[rect.top:rect.bottom, rect.left, rect.right]
+        content_img = image[rect.top:rect.bottom, rect.left:rect.right]
+        ActionImage.log_image('field_{}_content'.format(self.name), content_img, debug=self.debug)
         main_part, main_part_bin = ActionImage.find_main_part(content_img, self.foreground, self.tolerance)
-        rows_img = ActionImage.split_rows(main_part_bin, self.background)
+        ActionImage.log_image('field_{}_main_part'.format(self.name), main_part, debug=self.debug)
+        rows_img = ActionImage.split_rows(main_part_bin, 255)
+        # 这里已经是二值图像了，所以背景颜色一定是255（只能取0和255两种颜色）
         content = ""
         for row_img in rows_img:
+            ActionImage.log_image('field_{}_main_part'.format(self.name), row_img, debug=self.debug)
             row_txt = ActionImage.ocr(row_img)
             content += row_txt
         return content
