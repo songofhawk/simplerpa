@@ -362,7 +362,7 @@ class ActionImage:
         if space is None:
             rows.append([0, height])
         return rows
-
+    #
     @classmethod
     def erode(cls, img):
         return cv2.erode(img, None, iterations=5)
