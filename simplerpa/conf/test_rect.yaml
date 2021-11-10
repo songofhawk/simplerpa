@@ -48,7 +48,7 @@ states:
             debug: True
           position: feature_rect.snap_right(350, 6)
           foreground: (155,155,155)
-          tolerance: 0.2
+          tolerance: 0.3
           debug: True
         - name: start
           feature:

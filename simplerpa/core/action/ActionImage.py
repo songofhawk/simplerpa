@@ -272,7 +272,7 @@ class ActionImage:
         else:
             raise RuntimeError("either foreground or background should be not None!")
 
-        channel = image.shape[2]
+        channel = img.shape[2]
         if channel == 4:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
@@ -308,15 +308,17 @@ class ActionImage:
 
     @classmethod
     def find_main_part(cls, image, foreground, tolerance) -> (ScreenRect, np.ndarray):
-        # ActionImage.log_image('1.color', image)
+        ActionImage.log_image('1.color', image)
         img_bin = cls.to_binary(image, foreground=foreground, tolerance=tolerance, single_channel=True)
-        # ActionImage.log_image('2.binary', img_bin)
+        ActionImage.log_image('2.binary', img_bin)
         img_erode = cls.erode(img_bin)
-        # ActionImage.log_image('3.erode', img_erode)
+        ActionImage.log_image('3.erode', img_erode)
         rect_list = cls.get_connected_area(img_erode)
         main_rect = max(rect_list, key=lambda rect: rect.area)
         main_part = image[main_rect.top:main_rect.bottom, main_rect.left:main_rect.right]
+        ActionImage.log_image('4.main_part', main_part)
         main_part_bin = img_bin[main_rect.top:main_rect.bottom, main_rect.left:main_rect.right]
+        ActionImage.log_image('5.main_part_bin', main_part_bin)
         return main_part, main_part_bin
 
     @classmethod
@@ -362,10 +364,14 @@ class ActionImage:
 
     @classmethod
     def get_connected_area(cls, img):
-        _, _, boxes, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(img))
+        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(img)
         rect_list = []
-        for box in boxes:
-            x, y, width, height, _ = box
+        for i, box in enumerate(stats):
+            pos = np.where(labels==i)
+            if img[pos[0][0], pos[1][0]] == 255:
+                # 假设传入的二值图，都是白色背景的，所以把背景组成的连通域剔除
+                continue
+            x, y, width, height, area = box
             rect = ScreenRect(x, x + width, y, y + height)
             rect_list.append(rect)
         rect_list.sort(key=lambda r: r.top, reverse=False)
