@@ -45,11 +45,9 @@ states:
             to_binary:
               foreground: (155,155,155)
               tolerance: 0.1
-            debug: True
-          position: feature_rect.snap_right(350, 6)
+          position: feature_rect.snap_right(330, 6)
           foreground: (155,155,155)
           tolerance: 0.3
-          debug: True
         - name: start
           feature:
             template: auto_wechat/icon_start_big.png
@@ -57,7 +55,7 @@ states:
             to_binary:
               foreground: (64,61,80)
               tolerance: 0.1
-          position: feature_rect.snap_right(350)
+          position: feature_rect.snap_right(400)
           foreground: (25,25,25)
           tolerance: 0.1
         - name: end
@@ -67,9 +65,11 @@ states:
             to_binary:
               foreground: (237,104,44)
               tolerance: 0.1
-          position: feature_rect.snap_right(350)
+            debug: True
+          position: feature_rect.snap_right(400)
           foreground: (25,25,25)
           tolerance: 0.1
+          debug: True
 
       part_splitter:
         name: "用分割符切割窗口"

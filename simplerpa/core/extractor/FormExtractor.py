@@ -26,7 +26,7 @@ class FormField(StateBlockBase):
         rect = Action.call_once(self.position, {'feature_rect': result.rect_on_image})
         content_img = ActionImage.sub_image(image, rect)
         ActionImage.log_image('field_{}_content'.format(self.name), content_img, debug=self.debug)
-        main_part, main_part_bin = ActionImage.find_main_part(content_img, self.foreground, self.tolerance)
+        main_part, main_part_bin = ActionImage.find_main_part(content_img, self.foreground, self.tolerance, debug=self.debug)
         ActionImage.log_image('field_{}_main_part'.format(self.name), main_part, debug=self.debug)
 
         rows = ActionImage.split_rows(main_part_bin, 255)
@@ -56,4 +56,3 @@ class FormExtractor(Extractor):
         for field in self.fields:
             content = field.get_content(image)
             print("{}: {}".format(field.name, content))
-        fields = ActionImage.find_content_parts(image, self.foreground, self.tolerance)

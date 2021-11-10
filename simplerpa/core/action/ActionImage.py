@@ -348,10 +348,9 @@ class ActionImage:
             if pre_space is None:
                 if space[0] != 0:
                     rows.append([0, space[0]])
-                pre_space = space
-                continue
             else:
                 rows.append([pre_space[1] + 1, space[0]])
+            pre_space = space
         height = img_gray.shape[0]
         if space is not None and space[1] < height - 1:
             rows.append([space[1] + 1, height - 1])
@@ -366,12 +365,14 @@ class ActionImage:
 
     @classmethod
     def get_connected_area(cls, img):
-        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(img)
+        bb_img = cv2.bitwise_not(img)
+        # 传入的图片是白色背景的，但connectedComponentsWithStats查找连通域要求必须是黑色背景，所以这里做反色转换
+        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(bb_img)
         rect_list = []
         for i, box in enumerate(stats):
             pos = np.where(labels == i)
-            if img[pos[0][0], pos[1][0]] == 255:
-                # 假设传入的二值图，都是白色背景的，所以把背景组成的连通域剔除
+            if bb_img[pos[0][0], pos[1][0]] == 0:
+                # 把背景组成的连通域剔除
                 continue
             x, y, width, height, area = box
             rect = ScreenRect(x, x + width, y, y + height)
