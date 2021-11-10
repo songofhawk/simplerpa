@@ -28,7 +28,12 @@ class FormField(StateBlockBase):
         ActionImage.log_image('field_{}_content'.format(self.name), content_img, debug=self.debug)
         main_part, main_part_bin = ActionImage.find_main_part(content_img, self.foreground, self.tolerance)
         ActionImage.log_image('field_{}_main_part'.format(self.name), main_part, debug=self.debug)
-        rows_img = ActionImage.split_rows(main_part_bin, 255)
+
+        rows = ActionImage.split_rows(main_part_bin, 255)
+        rows_img = []
+        for row in rows:
+            rows_img.append(main_part[row[0]:row[1], :])
+
         # 这里已经是二值图像了，所以背景颜色一定是255（只能取0和255两种颜色）
         content = ""
         for row_img in rows_img:

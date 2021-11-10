@@ -353,13 +353,12 @@ class ActionImage:
             else:
                 rows.append([pre_space[1] + 1, space[0]])
         height = img_gray.shape[0]
-        if space[1] < height - 1:
+        if space is not None and space[1] < height - 1:
             rows.append([space[1] + 1, height - 1])
 
-        rows_img = []
-        for row in rows:
-            rows_img.append(img_gray[row[0]:row[1], :])
-        return rows_img
+        if space is None:
+            rows.append([0, img_gray.shap[0]])
+        return rows
 
     @classmethod
     def erode(cls, img):
