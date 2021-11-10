@@ -71,15 +71,16 @@ states:
           tolerance: 0.1
         - name: price
           feature:
-            template: auto_wechat/icon_rmb.png
+            template: auto_wechat/icon_rmb_small.png
             auto_scale: (0.8,1.5)
-            to_binary:
-              foreground: (237,104,44)
-              tolerance: 0.1
+#            to_binary:
+#              foreground: (237,104,44)
+#              tolerance: 0.1
 #            debug: True
-          positi ，on: feature_rect.snap_right(200)
+          position: feature_rect.snap_right(100)
           foreground: (237,104,44)
           tolerance: 0.1
+          debug: True
 
       part_splitter:
         name: "用分割符切割窗口"
@@ -90,16 +91,17 @@ states:
 #            background: (255,255,255)
             tolerance: 0.1
           detect_all: True
-#          debug: True
+          debug: True
           auto_scale: (1,1.5)
-#        end:
-#          template: auto_wechat/form_end.png
+        end:
+          template: auto_wechat/form_end.png
 #          to_binary:
 #            foreground: (241,98,36)
 #            tolerance: 0.1
-#          detect_all: True
+          detect_all: True
+          auto_scale: (0.6,1.5)
 #          debug: True
-##          auto_scale: (1.2,1.5)
+#          auto_scale: (1.2,1.5)
 
 #  - id: 4
 #    name: "测试在二值图像中查找icon_time"

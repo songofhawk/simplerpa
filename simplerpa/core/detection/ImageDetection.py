@@ -164,6 +164,7 @@ class ImageDetection(Detection):
             else:
                 size = len(result_list)
                 print('image detection result_list: found {}'.format(size))
+                img_result = image_current.copy()
                 for index, result in enumerate(result_list):
                     rect = result.rect
                     print('result-{}: confidence-{}, scale-{}, priority-{}， {}'.format(index,
@@ -173,9 +174,8 @@ class ImageDetection(Detection):
                                                                                            result,
                                                                                            'priority') else None,
                                                                                        rect if result is not None else None))
-
-                    cv2.rectangle(image_current, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
-                ActionImage.log_image('result', image_current, debug=self.debug)
+                    cv2.rectangle(img_result, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
+                ActionImage.log_image('result', img_result, debug=self.debug)
 
         if result_list is None or len(result_list) == 0:
             return None

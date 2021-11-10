@@ -53,18 +53,20 @@ class PartSplitter(StateBlockBase):
         else:
             start_len = len(start_found_list)
             end_len = len(end_found_list)
-            count = min(start_len, end_len)
-            for i in range(count):
-                start_top = start_found_list[i].rect_on_image.top if self.start is not None else None
-                end_bottom = end_found_list[i].rect_on_image.bottom if self.end is not None else None
-                if start_top < end_bottom:
-                    part = image[start_top:end_bottom, :]
-                    parts.append(part)
-                else:
-                    if pre_top is not None:
-                        part = image[pre_top:end_bottom, :]
-                        parts.append(part)
-                    pre_top = start_top
+            start_i = 0
+            end_i = 0
+            while True:
+                start_top = start_found_list[start_i].rect_on_image.top
+                end_bottom = end_found_list[end_i].rect_on_image.bottom
+                if start_top >= end_bottom:
+                    end_i += 1
+                    continue
+                part = image[start_top:end_bottom, :]
+                parts.append(part)
+                start_i += 1
+                end_i += 1
+                if start_i >= start_len or end_i >= end_len:
+                    break
         return parts
 
 

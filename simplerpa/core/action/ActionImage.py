@@ -49,7 +49,7 @@ class ActionImage:
         return cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), -1)
 
     @classmethod
-    def ocr(cls, cv_image, rect=None):
+    def ocr(cls, cv_image, rect=None, debug=False):
         """
         从指定图片的特定位置中提取文本字符串
         Args:
@@ -70,7 +70,7 @@ class ActionImage:
             cv_image_gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         img_high_contrast = cls.grayscale_linear_transformation(cv_image_gray, 0, 255)
 
-        cls.log_image('ocr', img_high_contrast, True)
+        cls.log_image('ocr', img_high_contrast, debug)
         res_chars = cls.cnocr.ocr_for_single_line(img_high_contrast)
 
         if len(res_chars) == 0:
@@ -325,7 +325,8 @@ class ActionImage:
 
     @classmethod
     def split_rows(cls, img_gray, background):
-        result_list = cls.find_rect(img_gray, Vector(img_gray.shape[1], 2), background, find_all=True)
+        space_height = 2
+        result_list = cls.find_rect(img_gray, Vector(img_gray.shape[1], space_height), background, find_all=True)
         space = None
         spaces = []
         for result in result_list:
@@ -335,7 +336,7 @@ class ActionImage:
                 space = [rect.top, rect.bottom]
                 spaces.append(space)
                 continue
-            if rect.top <= space[1] + 1:
+            if rect.top <= space[1]:
                 space[1] = rect.bottom
             else:
                 space = [rect.top, rect.bottom]
@@ -343,20 +344,23 @@ class ActionImage:
 
         rows = []
         pre_space = None
+        height = img_gray.shape[0]
         for space in spaces:
             # 获取有内容的行坐标
             if pre_space is None:
                 if space[0] != 0:
-                    rows.append([0, space[0]])
+                    rows.append([0, space[0] + space_height])
             else:
-                rows.append([pre_space[1] + 1, space[0]])
+                t = pre_space[1] - space_height
+                b = space[0] + space_height
+                rows.append([t if t > 0 else 0, b if b < height else height])
             pre_space = space
-        height = img_gray.shape[0]
         if space is not None and space[1] < height - 1:
-            rows.append([space[1] + 1, height - 1])
+            t = space[1] - space_height
+            rows.append([t if t > 0 else 0, height])
 
         if space is None:
-            rows.append([0, img_gray.shap[0]])
+            rows.append([0, height])
         return rows
 
     @classmethod
