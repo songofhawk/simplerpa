@@ -64,8 +64,10 @@ class ActionImage:
 
         if rect is not None:
             cv_image = cv_image[rect.top:rect.bottom, rect.left:rect.right]
-
-        cv_image_gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+        if len(cv_image.shape) == 2:
+            cv_image_gray = cv_image
+        else:
+            cv_image_gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
         img_high_contrast = cls.grayscale_linear_transformation(cv_image_gray, 0, 255)
 
         cls.log_image('ocr', img_high_contrast, True)
@@ -307,18 +309,18 @@ class ActionImage:
         return blocks
 
     @classmethod
-    def find_main_part(cls, image, foreground, tolerance) -> (ScreenRect, np.ndarray):
-        ActionImage.log_image('1.color', image)
+    def find_main_part(cls, image, foreground, tolerance, debug=False) -> (ScreenRect, np.ndarray):
+        ActionImage.log_image('1.color', image, debug)
         img_bin = cls.to_binary(image, foreground=foreground, tolerance=tolerance, single_channel=True)
-        ActionImage.log_image('2.binary', img_bin)
+        ActionImage.log_image('2.binary', img_bin, debug)
         img_erode = cls.erode(img_bin)
-        ActionImage.log_image('3.erode', img_erode)
+        ActionImage.log_image('3.erode', img_erode, debug)
         rect_list = cls.get_connected_area(img_erode)
         main_rect = max(rect_list, key=lambda rect: rect.area)
         main_part = image[main_rect.top:main_rect.bottom, main_rect.left:main_rect.right]
-        ActionImage.log_image('4.main_part', main_part)
+        ActionImage.log_image('4.main_part', main_part, debug)
         main_part_bin = img_bin[main_rect.top:main_rect.bottom, main_rect.left:main_rect.right]
-        ActionImage.log_image('5.main_part_bin', main_part_bin)
+        ActionImage.log_image('5.main_part_bin', main_part_bin, debug)
         return main_part, main_part_bin
 
     @classmethod
@@ -331,12 +333,13 @@ class ActionImage:
             rect = result.rect
             if space is None:
                 space = [rect.top, rect.bottom]
+                spaces.append(space)
                 continue
             if rect.top <= space[1] + 1:
                 space[1] = rect.bottom
             else:
-                spaces.append(space)
                 space = [rect.top, rect.bottom]
+                spaces.append(space)
 
         rows = []
         pre_space = None
@@ -367,7 +370,7 @@ class ActionImage:
         num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(img)
         rect_list = []
         for i, box in enumerate(stats):
-            pos = np.where(labels==i)
+            pos = np.where(labels == i)
             if img[pos[0][0], pos[1][0]] == 255:
                 # 假设传入的二值图，都是白色背景的，所以把背景组成的连通域剔除
                 continue
