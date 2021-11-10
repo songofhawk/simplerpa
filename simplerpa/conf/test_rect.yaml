@@ -69,7 +69,17 @@ states:
           position: feature_rect.snap_right(400)
           foreground: (25,25,25)
           tolerance: 0.1
-          debug: True
+        - name: price
+          feature:
+            template: auto_wechat/icon_rmb.png
+            auto_scale: (0.8,1.5)
+            to_binary:
+              foreground: (237,104,44)
+              tolerance: 0.1
+#            debug: True
+          positi ，on: feature_rect.snap_right(200)
+          foreground: (237,104,44)
+          tolerance: 0.1
 
       part_splitter:
         name: "用分割符切割窗口"
