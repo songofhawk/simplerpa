@@ -76,7 +76,7 @@ states:
               foreground: (239,99,31)
               tolerance: 0.3
             auto_scale: (0.8,2)
-            confidence: 0.7
+            confidence: 0.65
             debug: True
           position: feature_rect.snap_right(100)
           foreground: (237,104,44)
@@ -101,7 +101,7 @@ states:
             tolerance: 0.3
           detect_all: True
           auto_scale: (0.8,2)
-          confidence: 0.7
+          confidence: 0.65
           debug: True
 
 #  - id: 4
