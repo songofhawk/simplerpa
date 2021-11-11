@@ -64,20 +64,20 @@ states:
             auto_scale: (0.8,1.5)
             to_binary:
               foreground: (237,104,44)
-              tolerance: 0.1
-            debug: True
+              tolerance: 0.2
           position: feature_rect.snap_right(400)
           foreground: (25,25,25)
           tolerance: 0.1
         - name: price
           feature:
-            template: auto_wechat/form_end.png
+            template: auto_wechat/icon_rmb_small.png
             to_binary:
               foreground: (239,99,31)
               tolerance: 0.3
             auto_scale: (0.8,2)
             confidence: 0.65
             debug: True
+          debug: True
           position: feature_rect.snap_right(100)
           foreground: (237,104,44)
           tolerance: 0.1
