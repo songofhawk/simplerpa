@@ -6,6 +6,8 @@ from .StateBlockBase import StateBlockBase
 from simplerpa.core.data.Action import Action, Execution, Evaluation
 from simplerpa.core.data.Find import Find
 from ..extractor import FormExtractor
+from ..monitor.ImageMonitor import ImageMonitor
+from ..monitor.Monitor import Monitor
 
 
 class To(StateBlockBase):
@@ -65,6 +67,7 @@ class State(StateBlockBase):
     name: str = None
     id: int = -1
     check: Find
+    monitor: ImageMonitor
     find: Find
     action: Execution
     transition: Transition

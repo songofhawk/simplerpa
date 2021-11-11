@@ -3,7 +3,7 @@ import time
 from simplerpa.core.extractor.Extractor import Extractor
 from simplerpa.core.Variable import Variable
 from simplerpa.core.action.ActionScreen import ActionScreen
-from simplerpa.core.const import STATE, FIND_RESULT
+from simplerpa.core.const import STATE, FIND_RESULT, MONITOR_RESULT
 from simplerpa.core.data.Action import Action
 from simplerpa.core.data.Misc import Find
 from simplerpa.core.data.Misc import ForEach
@@ -63,6 +63,10 @@ class Executor:
             self._current_state = None
             self._current_index = None
             return
+
+        # monitor
+        if not self._do_monitor(the_state.monitor, False):
+            raise RuntimeError('monitor failed in state "{}"'.format(the_state.name))
 
         Action.call(the_state.action)
 
@@ -183,6 +187,17 @@ class Executor:
                 return False
         else:
             return False
+
+    def _do_monitor(self, monitor, save_result):
+        if monitor is None:
+            return True
+
+        change = monitor.do()
+        if change is None:
+            return False
+        else:
+            Action.save_call_env({MONITOR_RESULT: change})
+            return True
 
     @staticmethod
     def _get_find_result(find, exe_fail_action=True):

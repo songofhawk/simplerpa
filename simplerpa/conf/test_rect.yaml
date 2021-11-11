@@ -33,76 +33,76 @@ states:
 #        debug: True
 #        auto_scale: (0.6,1.5)
 ##        detect_all: True
-  - id: 3
-    name: "测试分割窗口"
-    form:
-      snapshot: !rect l:1470,  r:1970,  t:120,  b:1320
-      fields:
-        - name: time
-          feature:
-            template: auto_wechat/icon_time.png
-            auto_scale: (0.8,1.5)
-            to_binary:
-              foreground: (155,155,155)
-              tolerance: 0.1
-          position: feature_rect.snap_right(330, 6)
-          foreground: (155,155,155)
-          tolerance: 0.3
-        - name: start
-          feature:
-            template: auto_wechat/icon_start_big.png
-            auto_scale: (0.8,1.5)
-            to_binary:
-              foreground: (64,61,80)
-              tolerance: 0.1
-          position: feature_rect.snap_right(400)
-          foreground: (25,25,25)
-          tolerance: 0.1
-        - name: end
-          feature:
-            template: auto_wechat/icon_end_big.png
-            auto_scale: (0.8,1.5)
-            to_binary:
-              foreground: (237,104,44)
-              tolerance: 0.2
-          position: feature_rect.snap_right(400)
-          foreground: (25,25,25)
-          tolerance: 0.1
-        - name: price
-          feature:
-            template: auto_wechat/icon_rmb_small.png
-            to_binary:
-              foreground: (237,104,44)
-              tolerance: 0.3
-            auto_scale: (0.8,2)
-            confidence: 0.65
-            debug: True
-          debug: True
-          position: feature_rect.snap_right(100)
-          foreground: (237,104,44)
-          tolerance: 0.3
+#  - id: 3
+#    name: "测试窗口提取信息"
+#    form:
+#      snapshot: !rect l:1470,  r:1970,  t:120,  b:1320
+#      fields:
+#        - name: time
+#          feature:
+#            template: auto_wechat/icon_time.png
+#            auto_scale: (0.8,1.5)
+#            to_binary:
+#              foreground: (155,155,155)
+#              tolerance: 0.1
+#          position: feature_rect.snap_right(330, 6)
+#          foreground: (155,155,155)
+#          tolerance: 0.3
+#        - name: start
+#          feature:
+#            template: auto_wechat/icon_start_big.png
+#            auto_scale: (0.8,1.5)
+#            to_binary:
+#              foreground: (64,61,80)
+#              tolerance: 0.1
+#          position: feature_rect.snap_right(400)
+#          foreground: (25,25,25)
+#          tolerance: 0.1
+#        - name: end
+#          feature:
+#            template: auto_wechat/icon_end_big.png
+#            auto_scale: (0.8,1.5)
+#            to_binary:
+#              foreground: (237,104,44)
+#              tolerance: 0.2
+#          position: feature_rect.snap_right(400)
+#          foreground: (25,25,25)
+#          tolerance: 0.1
+#        - name: price
+#          feature:
+#            template: auto_wechat/icon_rmb_small.png
+#            to_binary:
+#              foreground: (237,104,44)
+#              tolerance: 0.3
+#            auto_scale: (0.8,2)
+#            confidence: 0.65
+#            debug: True
 #          debug: True
-
-      part_splitter:
-        name: "用分割符切割窗口"
-        start:
-          template: auto_wechat/form_start.png
-          to_binary:
-            foreground: (153,153,153)
-#            background: (255,255,255)
-            tolerance: 0.1
-          detect_all: True
+#          position: feature_rect.snap_right(100)
+#          foreground: (237,104,44)
+#          tolerance: 0.3
+##          debug: True
+#
+#      part_splitter:
+#        name: "用分割符切割窗口"
+#        start:
+#          template: auto_wechat/form_start.png
+#          to_binary:
+#            foreground: (153,153,153)
+##            background: (255,255,255)
+#            tolerance: 0.1
+#          detect_all: True
+##          debug: True
+#          auto_scale: (1,1.5)
+#        end:
+#          template: auto_wechat/form_end.png
+#          to_binary:
+#            foreground: (239,99,31)
+#            tolerance: 0.3
+#          detect_all: True
+#          auto_scale: (0.8,2)
+#          confidence: 0.65
 #          debug: True
-          auto_scale: (1,1.5)
-        end:
-          template: auto_wechat/form_end.png
-          to_binary:
-            foreground: (239,99,31)
-            tolerance: 0.3
-          detect_all: True
-          auto_scale: (0.8,2)
-          confidence: 0.65
-          debug: True
 
 #  - id: 4
 #    name: "测试在二值图像中查找icon_time"
@@ -112,3 +112,27 @@ states:
 #        template: auto_wechat/icon_time_bin.png
 ##        confidence: 0.3
 #        debug: True
+  - id: 5
+    name: "找到网约沟通窗口"
+    find:
+      window:
+        win_class: "ChatWnd"
+        title: "天助定【网约沟通】"
+        fail_action: raise_error('没有找到【网约沟通】！')
+        activate: True
+        wait: 1
+    transition:
+      # 点击
+      action:
+        - chat = get_window_rect(find_result.hwnd)
+        - print(chat)
+      wait: 1
+  - id: 6
+    name: "测试监控窗口变化"
+    monitor:
+      snapshot: ScreenRect(chat.left, chat.right, chat.top+65, chat.top+415)
+      interval: 0.3
+      time: None
+      scroll: up
+#        confidence: 0.3
+      debug: True

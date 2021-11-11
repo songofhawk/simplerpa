@@ -107,7 +107,7 @@ class ActionImage:
 
         if match_results is None or len(match_results) == 0:
             if auto_scale is None:
-                return None
+                return []
             else:
                 scale_min = auto_scale[0]
                 scale_max = auto_scale[1]
@@ -362,6 +362,7 @@ class ActionImage:
         if space is None:
             rows.append([0, height])
         return rows
+
     #
     @classmethod
     def erode(cls, img):
@@ -401,3 +402,10 @@ class ActionImage:
         t = rect.top
         b = rect.bottom
         return img[t if t > 0 else 0:b if b < height else height, l if l > 0 else 0:r if r < width else width]
+
+    @classmethod
+    def diff(cls, img1, img2):
+        gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+        gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+        return cv2.absdiff(gray1, gray2)
