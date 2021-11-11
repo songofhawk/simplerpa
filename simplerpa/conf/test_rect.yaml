@@ -72,7 +72,7 @@ states:
           feature:
             template: auto_wechat/icon_rmb_small.png
             to_binary:
-              foreground: (239,99,31)
+              foreground: (237,104,44)
               tolerance: 0.3
             auto_scale: (0.8,2)
             confidence: 0.65
@@ -80,7 +80,7 @@ states:
           debug: True
           position: feature_rect.snap_right(100)
           foreground: (237,104,44)
-          tolerance: 0.1
+          tolerance: 0.3
 #          debug: True
 
       part_splitter:
