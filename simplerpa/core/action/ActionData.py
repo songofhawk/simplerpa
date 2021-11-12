@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-class ActionExcel:
+class ActionData:
     def __init__(self, context):
         self._context = context
 

@@ -5,7 +5,7 @@ from .StateBlockBase import StateBlockBase
 from simplerpa.core.action import ActionMouse
 from simplerpa.core.action.ActionClipboard import ActionClipboard
 from simplerpa.core.action.ActionError import ActionError
-from simplerpa.core.action.ActionExcel import ActionExcel
+from simplerpa.core.action.ActionData import ActionData
 from simplerpa.core.action.ActionImage import ActionImage
 from simplerpa.core.action.ActionKeyboard import ActionKeyboard
 from simplerpa.core.action.ActionScreen import ActionScreen
@@ -63,7 +63,7 @@ class Action(StateBlockBase):
         'set_window_pos': ActionWindow.set_window_pos,
         'get_window_rect': ActionWindow.get_window_rect,
         'set_current_window': ActionWindow.set_current_window,
-        'create_dataframe': ActionExcel.create_dataframe,
+        'create_dataframe': ActionData.create_dataframe,
     }
 
     _call_env = {**func_dict, **{}}

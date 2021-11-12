@@ -73,13 +73,21 @@ class PartSplitter(StateBlockBase):
 class Extractor(StateBlockBase):
     snapshot: ScreenRect = None
     part_splitter: PartSplitter = None
+    file: str = "result.csv"
 
     def __init__(self):
         self.image = None
 
+    def prepare(self):
+        raise RuntimeError("prepare method must bu implemented by sub class of Extractor!")
+
+    def do_once(self, image):
+        raise RuntimeError("do_once method must bu implemented by sub class of Extractor!")
+
     def do(self):
         if self.snapshot is None:
             raise RuntimeError('There should be a "snapshot" attribute in extractor named "{}"!'.format(self.name))
+        df = self.prepare()
 
         screen_image = ActionScreen.snapshot(self.snapshot.evaluate())
         image_source = ActionImage.pil_to_cv(screen_image)
@@ -88,9 +96,11 @@ class Extractor(StateBlockBase):
             image_parts = self.part_splitter.split_parts(self.snapshot, image_source)
             for index, part in enumerate(image_parts):
                 ActionImage.log_image('part-{}'.format(index), part)
-                self.do_once(part)
+                data_dict = self.do_once(part)
+                df = df.append(data_dict, ignore_index=True)
         else:
-            self.do_once(image_source)
+            data_dict = self.do_once(image_source)
+            df = df.append(data_dict, ignore_index=True)
 
-    def do_once(self, image):
-        pass
+        with open(self.file, 'a', encoding="utf-8", newline='') as f:
+            df.to_csv(f, header=f.tell() == 0)

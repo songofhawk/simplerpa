@@ -50,33 +50,60 @@ states:
         page_count: 20
         find_mode: "Any"
     transition:
-      # 右击第一个卡片
+      # 点击对应的聊天
       action:
         - print(find_result.rect_on_screen)
         - click(find_result.rect_on_screen.center)
       wait: 2
-  - name: "网约沟通群内容"
+  - name: "网约沟通群内容上沿"
     id: 4
-    action:
-      - df = create_dataframe(['time', 'start', 'end', 'price'])
+    find:
+      image:
+        template: auto_wechat/wangyue_title.png
+        snapshot: ScreenRect(wechat.left+304, wechat.left+370, wechat.top+65, wechat.top+900)
+      fail_action: raise_error('没找到网约沟通标题')
+    transition:
+      action:
+        - content_top = find_result.rect_on_screen.bottom
+  - name: "网约沟通群内容下沿"
+    id: 5
+    find:
+      image:
+        template: auto_wechat/chat_toolbar.png
+        snapshot: ScreenRect(wechat.left+304, wechat.left+370, wechat.top+65, wechat.top+900)
+      fail_action: raise_error('没找到网约沟通标题')
+    transition:
+      action:
+        - content_bottom = find_result.rect_on_screen.top
+        - content_left = find_result.rect_on_screen.left
+        - content = ScreenRect(content_left, content_left+430, content_top, content_bottom)
+  - name: "网约沟通群内容监控"
+    id: 5
+    monitor:
+      snapshot: content
+      interval: 0.3
+      time: None
+      scroll: up
+      #        confidence: 0.3
+      debug: True
     find:
       image:
         template: auto_wechat/chat_head.png
-        snapshot: ScreenRect(wechat.left+304, wechat.left+370, wechat.top+65, wechat.top+900)
+        snapshot: ScreenRect(content.left, content.right, content.top+monitor_result.position, content.bottom)
         confidence: 0.3
 #        debug: True
         detect_all: True
       #      scroll:
       #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
       #        page_count: 20
-      fail_action: raise_error('没找到人物头像')
+#      fail_action: raise_error('没找到人物头像')
     foreach:
       in_items: find_result
       item: head
       action:
         - head_rect = head.rect_on_screen
       sub_states:
-        - id: 40
+        - id: 60
           name: 1条聊天记录
           check:
             image:
@@ -96,8 +123,8 @@ states:
             action:
               - click(head_rect.topleft.offset(80,65))
               - wait(0.5)
-        - id: 42
-          name: 图片大图
+        - id: 62
+          name: 检测图片窗口
 #          check:
 #            image:
 #              snapshot: ScreenRect.center_expand(500,1200)
@@ -107,70 +134,91 @@ states:
 ##              debug: True
 #            result_name: complete_text
           find:
-            image:
-              snapshot: ScreenRect.center_expand(450,1100)
-              template: auto_wechat/icon_time.png
-              confidence: 0.91
-#              scale: complete_text.scale
-              detect_all: True
-              auto_scale: (0.8,1.5)
-              debug: True
-            fail_action: raise_error('时间标识没找到')
-          foreach:
-            in_items: find_result
-            item: icon_time
+            window:
+              win_class: "ImagePreviewWnd"
+              title: "图片查看"
+              fail_action: raise_error('没有找到图片查看窗口！')
+              activate: True
+              wait: 1
+          transition:
+            # 点击
             action:
-              - block = icon_time.rect_on_screen.expand_right(400).expand_bottom(200)
-            sub_states:
-              - id: 420
-                name: 找时间
-#                find:
-#                  image:
-#                    snapshot: block.snap_bottom(300*complete_text.scale)
-#                    template: auto_wechat/icon_time.png
-##                    scale: complete_text.scale
-#                    debug: True
-                transition:
-                  action: time_str = ocr(snapshot(icon_time.rect_on_screen.snap_right(300)))
-              - id: 421
-                name: 找起点
-                find:
-                  image:
-                    snapshot: block
-                    template: auto_wechat/icon_start_small.png
-#                    scale: complete_text.scale
-                    auto_scale: (0.8,1.5)
-#                    debug: True
-                    fail_action: level_return('起点没找到')
-                transition:
-                  action: start_str = ocr(snapshot(find_result.rect_on_screen.snap_right(350)))
-              - id: 422
-                name: 找终点
-                find:
-                  image:
-                    snapshot: block
-                    template: auto_wechat/icon_end_small.png
-                    priority: color
-                    auto_scale: (0.8,1.5)
-                    color: (232,102,35)
-                    fail_action: level_return('终点没找到')
-                #                    scale: complete_text.scale
-                transition:
-                  action: end_str = ocr(snapshot(find_result.rect_on_screen.snap_right(350)))
-              - id: 423
-                name: 找价格
-                find:
-                  image:
-                    snapshot: block
-                    template: auto_wechat/icon_rmb.png
-#                    scale: complete_text.scale
-#                    debug: True
-                    auto_scale: (0.7,1.5)
-                  fail_action: level_return('价格没找到')
-                transition:
-                  action:
-                    - price_str = ocr(snapshot(find_result.rect_on_screen.snap_right(100)))
-                    - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str}, ignore_index=True)
+              - form = get_window_rect(find_result.hwnd)
+              - print(wechat)
+            wait: 1
+        - id: 63
+          name: "提取form信息"
+          form:
+            file: "result.csv"
+            snapshot: form
+            part_splitter:
+              name: "用分割符切割窗口"
+              start:
+                template: auto_wechat/form_start.png
+                to_binary:
+                  foreground: (153,153,153)
+      #            background: (255,255,255)
+                  tolerance: 0.1
+                detect_all: True
+      #          debug: True
+                auto_scale: (1,1.5)
+              end:
+                template: auto_wechat/form_end.png
+                to_binary:
+                  foreground: (239,99,31)
+                  tolerance: 0.3
+                detect_all: True
+                auto_scale: (0.8,2)
+                confidence: 0.65
+                debug: True
+            fields:
+              - name: time
+                feature:
+                  template: auto_wechat/icon_time.png
+                  auto_scale: (0.8,1.5)
+                  to_binary:
+                    foreground: (155,155,155)
+                    tolerance: 0.1
+                position: feature_rect.snap_right(330, 6)
+                foreground: (155,155,155)
+                tolerance: 0.3
+              - name: start
+                feature:
+                  template: auto_wechat/icon_start_big.png
+                  auto_scale: (0.8,1.5)
+                  to_binary:
+                    foreground: (64,61,80)
+                    tolerance: 0.1
+                position: feature_rect.snap_right(400)
+                foreground: (25,25,25)
+                tolerance: 0.1
+              - name: end
+                feature:
+                  template: auto_wechat/icon_end_big.png
+                  auto_scale: (0.8,1.5)
+                  to_binary:
+                    foreground: (237,104,44)
+                    tolerance: 0.2
+                position: feature_rect.snap_right(400)
+                foreground: (25,25,25)
+                tolerance: 0.1
+              - name: price
+                feature:
+                  template: auto_wechat/icon_rmb_small.png
+                  to_binary:
+                    foreground: (237,104,44)
+                    tolerance: 0.3
+                  auto_scale: (0.8,2)
+                  confidence: 0.65
+                  debug: True
+                debug: True
+                position: feature_rect.snap_right(100)
+                foreground: (237,104,44)
+                tolerance: 0.3
+      #          debug: True
+          transition:
+            action:
+              - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str}, ignore_index=True)
 
     transition:
       wait: 1

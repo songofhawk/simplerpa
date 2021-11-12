@@ -1,8 +1,9 @@
 from typing import Tuple, List
 
-from core.detection.ImageDetection import ImageDetection
+from ..detection.ImageDetection import ImageDetection
 
 from .Extractor import Extractor
+from ..action.ActionData import ActionData
 from ..action.ActionImage import ActionImage
 from ..data.Action import Evaluation, Action
 from ..data.StateBlockBase import StateBlockBase
@@ -26,7 +27,8 @@ class FormField(StateBlockBase):
         rect = Action.call_once(self.position, {'feature_rect': result.rect_on_image})
         content_img = ActionImage.sub_image(image, rect)
         ActionImage.log_image('field_{}_content'.format(self.name), content_img, debug=self.debug)
-        main_part, main_part_bin = ActionImage.find_main_part(content_img, self.foreground, self.tolerance, debug=self.debug)
+        main_part, main_part_bin = ActionImage.find_main_part(content_img, self.foreground, self.tolerance,
+                                                              debug=self.debug)
         ActionImage.log_image('field_{}_main_part'.format(self.name), main_part, debug=self.debug)
 
         rows = ActionImage.split_rows(main_part_bin, 255)
@@ -50,9 +52,18 @@ class FormExtractor(Extractor):
 
     def __init__(self):
         super().__init__()
+        self.field_names = None
+
+    def prepare(self):
+        if self.field_names is None:
+            self.field_names = list(map(lambda x: x.name, self.fields))
+        df = ActionData.create_dataframe(self.field_names)
+        return df
 
     def do_once(self, image):
-        # pass
+        data_dict = {}
         for field in self.fields:
             content = field.get_content(image)
+            data_dict[field.name] = content
             print("{}: {}".format(field.name, content))
+        return data_dict
