@@ -5,12 +5,12 @@ ver: 0.1
 range: !rect l:0, r:1920, t:0, b:1080
 time_scale: 1
 states:
-  - name: "当前桌面"
+  - name: "微信聊天窗口"
     id: 1
     find:
       window:
-        win_class: "WeChatMainWndForPC"
-#        title: "微信"
+        win_class: "ChatWnd"
+        title: "h+"
         fail_action: raise_error('没有找到微信！')
         activate: True
         wait: 1
@@ -20,71 +20,35 @@ states:
         - wechat = get_window_rect(find_result.hwnd)
         - print(wechat)
       wait: 1
-  - name: "微信聊天窗口"
-    id: 2
-    # 这里简化了操作，假设微信总是处于聊天窗口，也可以增加查找节点，再切换回聊天窗
-    find:
-      image:
-        snapshot: wechat
-        # 直接在整个微信对话框内搜索
-        template: auto_wechat/wechat_logo.png
-        fail_action: raise_error('当前没有处于微信聊天窗口！')
-        result_name: chat_logo
-    transition:
-      # 右击第一个卡片
-      action: click(find_result.rect_on_screen.center)
-      wait: 1
-  - name: "聊天列表"
+  - name: "内容上沿"
     id: 3
-    action:
-      - move(wechat.topleft.offset(100,200))
     find:
       image:
+        template: auto_wechat/h+_title.png
         snapshot: wechat
-        # 直接在整个微信对话框内搜索
-        template: auto_wechat/group_name.png
-#        debug: True
-      fail_action: raise_error('没找到【网约沟通】群！')
-      scroll:
-        one_page: -200  # 负数是假设目前看到的是列表顶端，内容向上滚
-        page_count: 20
-        find_mode: "Any"
-    transition:
-      # 点击对应的聊天
-      action:
-        - print(find_result.rect_on_screen)
-        - click(find_result.rect_on_screen.center)
-      wait: 2
-  - name: "网约沟通群内容上沿"
-    id: 4
-    find:
-      image:
-        template: auto_wechat/wangyue_title.png
-        snapshot: ScreenRect(wechat.left+304, wechat.left+370, wechat.top+65, wechat.top+900)
       fail_action: raise_error('没找到网约沟通标题')
     transition:
       action:
         - content_top = find_result.rect_on_screen.bottom
-  - name: "网约沟通群内容下沿"
-    id: 5
+  - name: "内容下沿"
+    id: 4
     find:
       image:
         template: auto_wechat/chat_toolbar.png
-        snapshot: ScreenRect(wechat.left+304, wechat.left+370, wechat.top+65, wechat.top+900)
-      fail_action: raise_error('没找到网约沟通标题')
+        snapshot: wechat
+      fail_action: raise_error('没找到聊天工具栏')
     transition:
       action:
         - content_bottom = find_result.rect_on_screen.top
         - content_left = find_result.rect_on_screen.left
         - content = ScreenRect(content_left, content_left+430, content_top, content_bottom)
-  - name: "网约沟通群内容监控"
+  - name: "内容监控"
     id: 5
     monitor:
       snapshot: content
-      interval: 0.3
-      time: None
+      interval: 1
+      times: 10
       scroll: up
-      #        confidence: 0.3
       debug: True
     find:
       image:
@@ -219,11 +183,6 @@ states:
           transition:
             action:
               - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str}, ignore_index=True)
-
     transition:
-      wait: 1
-  - name: "内容总结"
-    id: 5
-    action:
-      - df.to_excel('./result.xlsx')
+      to: 5
 

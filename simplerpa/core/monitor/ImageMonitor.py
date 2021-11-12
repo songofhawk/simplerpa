@@ -10,8 +10,9 @@ from ..data.ScreenRect import ScreenRect
 class ChangeResult(object):
     rate: float = 0
     position: float = None
+    scroll: str = None
 
-    def __init__(self, rate, position=None):
+    def __init__(self, rate, position=None, scroll=None):
         self.rate = rate
         self.position = position
 
@@ -22,7 +23,6 @@ class ImageMonitor(Monitor):
     interval: float = 1
     times: int = None
     threshold: float = 0.1
-    scroll: str = "up"
 
     def __init__(self):
         super().__init__()
@@ -35,14 +35,14 @@ class ImageMonitor(Monitor):
         i = 0
         change = None
         rect = self.snapshot.evaluate()
-        while self.times is None or i >= self.times:
+        while self.times is None or i < self.times:
             change = self._check_change(rect)
             if change is not None:
                 break
             if self.debug:
                 print("No change, wait...")
             ActionSystem.wait(self.interval)
-
+            i += 1
         if self.debug:
             print("Monitoring change, rate:{}, position:{}".format(change.rate, change.position))
         return change
@@ -56,22 +56,26 @@ class ImageMonitor(Monitor):
 
         rate = cv2.countNonZero(diff) / diff.size
         if rate > self.threshold:
-            if self.scroll == "up":
-                height = self.pre_snapshot.shape[0]
-                feature_img = self.pre_snapshot[height - 65:height, :]
-            else:
-                feature_img = self.pre_snapshot[0:65, :]
+            scroll = "up"
+            height = self.pre_snapshot.shape[0]
+            feature_img = self.pre_snapshot[height - 65:height, :]
             res_list = ActionImage.find_all_template(snapshot_image, feature_img, 0.8)
+
+            if len(res_list) == 0:
+                scroll = 'down'
+                feature_img = self.pre_snapshot[0:65, :]
+                res_list = ActionImage.find_all_template(snapshot_image, feature_img, 0.8)
+
             if len(res_list) == 0:
                 position = None
             else:
-                if self.scroll == "up":
+                if scroll == "up":
                     position = res_list[0].rect.bottom
                 else:
                     position = res_list[0].rect.top
             ActionImage.log_image('monitor_pre', self.pre_snapshot)
             ActionImage.log_image('monitor_now', snapshot_image)
-            return ChangeResult(rate, position)
+            return ChangeResult(rate, position, scroll)
         else:
             self.pre_snapshot = snapshot_image
             return None
