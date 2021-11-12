@@ -249,3 +249,15 @@ class ScreenRect(object):
     @property
     def topleft(self):
         return Vector(self.left, self.top)
+
+    @property
+    def topright(self):
+        return Vector(self.right, self.top)
+
+    @property
+    def bottomleft(self):
+        return Vector(self.left, self.bottom)
+
+    @property
+    def bottomright(self):
+        return Vector(self.right, self.bottom)

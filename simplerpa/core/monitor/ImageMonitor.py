@@ -56,6 +56,9 @@ class ImageMonitor(Monitor):
 
         rate = cv2.countNonZero(diff) / diff.size
         if rate > self.threshold:
+            ActionImage.log_image('monitor_pre', self.pre_snapshot, self.debug)
+            # 等半秒，以防消息连续发送
+            ActionSystem.wait(0.5)
             scroll = "up"
             height = self.pre_snapshot.shape[0]
             feature_img = self.pre_snapshot[height - 65:height, :]
@@ -73,7 +76,7 @@ class ImageMonitor(Monitor):
                     position = res_list[0].rect.bottom
                 else:
                     position = res_list[0].rect.top
-            ActionImage.log_image('monitor_pre', self.pre_snapshot, self.debug)
+
             ActionImage.log_image('monitor_now', snapshot_image, self.debug)
             self.pre_snapshot = None
             return ChangeResult(rate, position, scroll)

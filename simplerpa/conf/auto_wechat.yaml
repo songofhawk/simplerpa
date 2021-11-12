@@ -49,6 +49,7 @@ states:
       interval: 1
       times: 100
       scroll: up
+      threshold: 0.05
 #      debug: True
     find:
       image:
@@ -58,7 +59,7 @@ states:
           background: (242,242,242)
           tolerance: 0.1
         confidence: 0.5
-        debug: True
+#        debug: True
         detect_all: True
       #      scroll:
       #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
@@ -81,14 +82,14 @@ states:
             fail_action: level_return(state.id)
           find:
             image:
-              snapshot: head_rect.topleft.offset_rect(60,45, 87, 176)
+              snapshot: head_rect.topright.offset_rect(0,0, 90, 180)
               template: auto_wechat/snapshot_thumbnail.png
-              confidence: 0.4
-#              debug: True
+              confidence: 0.6
+              debug: True
             fail_action: level_return(state.id)
           transition:
             action:
-              - click(head_rect.topleft.offset(80,65))
+              - click(head_rect.bottomright.offset(45,80))
               - wait(0.5)
         - id: 62
           name: 检测图片窗口
@@ -128,7 +129,7 @@ states:
       #            background: (255,255,255)
                   tolerance: 0.1
                 detect_all: True
-                debug: True
+#                debug: True
                 auto_scale: (1,1.5)
               end:
                 template: auto_wechat/form_end.png
@@ -137,8 +138,8 @@ states:
                   tolerance: 0.3
                 detect_all: True
                 auto_scale: (0.8,2)
-                confidence: 0.65
-                debug: True
+                confidence: 0.6
+#                debug: True
             fields:
               - name: time
                 feature:
@@ -177,15 +178,17 @@ states:
                     foreground: (237,104,44)
                     tolerance: 0.3
                   auto_scale: (0.8,2)
-                  confidence: 0.65
-                  debug: True
-                debug: True
+                  confidence: 0.6
+#                  debug: True
+#                debug: True
                 position: feature_rect.snap_right(100)
                 foreground: (237,104,44)
                 tolerance: 0.3
       #          debug: True
           transition:
             action:
+              - hotkey('alt','f4')
+              - wait(0.5)
               - print("----完成一组form识别---")
     transition:
       to: 5
