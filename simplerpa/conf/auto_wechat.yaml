@@ -59,7 +59,7 @@ states:
           background: (242,242,242)
           tolerance: 0.1
         confidence: 0.5
-#        debug: True
+        debug: True
         detect_all: True
       #      scroll:
       #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
@@ -75,12 +75,16 @@ states:
           name: 1条聊天记录
           check:
             image:
-              snapshot: head_rect.snap_right(30, 70)
+              snapshot: head_rect.snap_right(30)
               template: auto_wechat/angle.png
               for_not_exist: True
-#              debug: True
+              debug: True
             fail_action: level_return(state.id)
-          find:
+          transition:
+            to: next
+        - id: 61
+          name: 缩略图
+          check:
             image:
               snapshot: head_rect.topright.offset_rect(0,0, 90, 180)
               template: auto_wechat/snapshot_thumbnail.png
