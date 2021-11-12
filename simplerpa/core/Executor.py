@@ -173,6 +173,8 @@ class Executor:
         if save_result:
             if len(results) > 1:
                 Action.save_call_env({FIND_RESULT: results})
+            elif len(results) == 0:
+                Action.save_call_env({FIND_RESULT: None})
             else:
                 Action.save_call_env({FIND_RESULT: results[0]})
         if len(results) > 0:

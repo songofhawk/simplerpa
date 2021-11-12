@@ -73,8 +73,9 @@ class ImageMonitor(Monitor):
                     position = res_list[0].rect.bottom
                 else:
                     position = res_list[0].rect.top
-            ActionImage.log_image('monitor_pre', self.pre_snapshot)
-            ActionImage.log_image('monitor_now', snapshot_image)
+            ActionImage.log_image('monitor_pre', self.pre_snapshot, self.debug)
+            ActionImage.log_image('monitor_now', snapshot_image, self.debug)
+            self.pre_snapshot = None
             return ChangeResult(rate, position, scroll)
         else:
             self.pre_snapshot = snapshot_image

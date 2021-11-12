@@ -47,13 +47,16 @@ states:
     monitor:
       snapshot: content
       interval: 1
-      times: 10
+      times: 100
       scroll: up
 #      debug: True
     find:
       image:
         template: auto_wechat/chat_head.png
-        snapshot: ScreenRect(content.left, content.left+100, content.top+monitor_result.position, content.bottom)
+        snapshot: ScreenRect(content.left, content.left+70, content.top+monitor_result.position, content.bottom)
+        to_binary:
+          background: (242,242,242)
+          tolerance: 0.1
         confidence: 0.5
         debug: True
         detect_all: True
@@ -108,6 +111,8 @@ states:
             action:
               - form = get_window_rect(find_result.hwnd)
               - print(wechat)
+              - move(form.center)
+              - wait(0.5)
             wait: 1
         - id: 63
           name: "提取form信息"
@@ -123,7 +128,7 @@ states:
       #            background: (255,255,255)
                   tolerance: 0.1
                 detect_all: True
-      #          debug: True
+                debug: True
                 auto_scale: (1,1.5)
               end:
                 template: auto_wechat/form_end.png
@@ -181,7 +186,7 @@ states:
       #          debug: True
           transition:
             action:
-              - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str}, ignore_index=True)
+              - print("----完成一组form识别---")
     transition:
       to: 5
 
