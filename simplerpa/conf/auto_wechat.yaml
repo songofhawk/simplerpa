@@ -49,13 +49,13 @@ states:
       interval: 1
       times: 10
       scroll: up
-      debug: True
+#      debug: True
     find:
       image:
         template: auto_wechat/chat_head.png
-        snapshot: ScreenRect(content.left, content.right, content.top+monitor_result.position, content.bottom)
-        confidence: 0.3
-#        debug: True
+        snapshot: ScreenRect(content.left, content.left+100, content.top+monitor_result.position, content.bottom)
+        confidence: 0.5
+        debug: True
         detect_all: True
       #      scroll:
       #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
@@ -82,7 +82,7 @@ states:
               template: auto_wechat/snapshot_thumbnail.png
               confidence: 0.4
 #              debug: True
-#            fail_action: level_return(state.id)
+            fail_action: level_return(state.id)
           transition:
             action:
               - click(head_rect.topleft.offset(80,65))
@@ -102,7 +102,6 @@ states:
               win_class: "ImagePreviewWnd"
               title: "图片查看"
               fail_action: raise_error('没有找到图片查看窗口！')
-              activate: True
               wait: 1
           transition:
             # 点击

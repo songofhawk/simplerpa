@@ -91,9 +91,11 @@ class ForEach(StateBlockBase):
             for item in items:
                 self.call_env[item_name] = item
                 self._do_one()
-        else:
+        elif items is not None:
             self.call_env[item_name] = items
             self._do_one()
+        else:
+            return
 
     def _do_one(self):
         Action.call(self.action, self.call_env)

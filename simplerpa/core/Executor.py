@@ -170,12 +170,12 @@ class Executor:
             return True
 
         results, flow_control_fail_action = self._get_find_result(find, True)
+        if save_result:
+            if len(results) > 1:
+                Action.save_call_env({FIND_RESULT: results})
+            else:
+                Action.save_call_env({FIND_RESULT: results[0]})
         if len(results) > 0:
-            if save_result:
-                if len(results) > 1:
-                    Action.save_call_env({FIND_RESULT: results})
-                else:
-                    Action.save_call_env({FIND_RESULT: results[0]})
             return True
 
         if flow_control_fail_action is not None:
