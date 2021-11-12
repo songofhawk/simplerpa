@@ -10,7 +10,7 @@ states:
     find:
       window:
         win_class: "ChatWnd"
-        title: "h+"
+        title: "h+测试群"
         fail_action: raise_error('没有找到微信！')
         activate: True
         wait: 1
@@ -46,10 +46,10 @@ states:
     id: 5
     monitor:
       snapshot: content
-      interval: 1
+      interval: 2
       times: 100
       scroll: up
-      threshold: 0.05
+      threshold: 0.01
 #      debug: True
     find:
       image:
@@ -59,7 +59,7 @@ states:
           background: (242,242,242)
           tolerance: 0.1
         confidence: 0.5
-        debug: True
+#        debug: True
         detect_all: True
       #      scroll:
       #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
@@ -75,7 +75,7 @@ states:
           name: 1条聊天记录
           check:
             image:
-              snapshot: head_rect.snap_right(30)
+              snapshot: head_rect.snap_right(30, 5)
               template: auto_wechat/angle.png
               for_not_exist: True
               debug: True
@@ -89,7 +89,7 @@ states:
               snapshot: head_rect.topright.offset_rect(0,0, 90, 180)
               template: auto_wechat/snapshot_thumbnail.png
               confidence: 0.6
-              debug: True
+#              debug: True
             fail_action: level_return(state.id)
           transition:
             action:

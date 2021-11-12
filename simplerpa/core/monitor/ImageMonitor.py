@@ -41,6 +41,7 @@ class ImageMonitor(Monitor):
                 break
             if self.debug:
                 print("No change, wait...")
+                # ActionImage.log_image('monitor_pre_snapshot', self.pre_snapshot, self.debug)
             ActionSystem.wait(self.interval)
             i += 1
         if self.debug:
