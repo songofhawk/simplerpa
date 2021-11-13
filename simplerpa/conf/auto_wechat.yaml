@@ -93,6 +93,7 @@ states:
             fail_action: level_return(state.id)
           transition:
             action:
+              - name = ocr(head_rect.topright.offset_rect(0,0, 90, 180))
               - click(head_rect.bottomright.offset(45,80))
               - wait(0.5)
         - id: 62

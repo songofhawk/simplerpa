@@ -53,14 +53,14 @@ class WindowDetection(Detection):
     result: 如果找到了，就返回一个WindowResult对象，如果没有找到，就返回None
     ```
     """
-
     current_only: True
     win_class: str = None
     title: str = None
     activate: bool = False
     wait: float = 1
+    set_pos: ScreenRect = None
 
-    def do(self, find_all=False):
+    def do_detection(self, find_all=False):
         if self.current_only:
             check_pass = True
             hwnd = ActionWindow.get_current_window()
@@ -81,12 +81,13 @@ class WindowDetection(Detection):
                 else:
                     check_pass = check_pass or True
                 if self.debug:
-                    msg += '' if msg=='' else ', '
+                    msg += '' if msg == '' else ', '
                     msg += '实际class:"{}", 预期class:"{}"'.format(win_class, self.win_class)
 
             if check_pass:
                 if self.debug:
                     print('检查当前窗口成功，{}'.format(msg))
+                self._set_position(hwnd)
                 return WindowResult(hwnd)
             else:
                 if self.debug:
@@ -101,8 +102,24 @@ class WindowDetection(Detection):
             else:
                 if self.debug:
                     print('检测窗口成功，预期title:"{}", 预期class:"{}'.format(self.title, self.win_class))
-                ActionWindow.set_current_window(hwnd)
                 if self.activate:
+                    ActionWindow.set_current_window(hwnd)
                     ActionSystem.wait(self.wait)
+                self._set_position(hwnd)
                 return WindowResult(hwnd)
 
+    def _set_position(self, hwnd):
+        pos = self.set_pos
+        # if isinstance(pos, ScreenRect):
+        # 这里很奇怪，用isinstance判断总是返回False，但如果debug，pos的类型明明就是ScreenRect
+        if pos is None:
+            if self.debug:
+                print('self.set_pos is None, ignore this operation!')
+            return
+
+        ActionWindow.set_window_pos(hwnd,
+                                    pos.left,
+                                    pos.top,
+                                    pos.right - pos.left,
+                                    pos.bottom - pos.top)
+        ActionSystem.wait(self.wait)

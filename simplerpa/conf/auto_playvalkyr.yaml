@@ -1,0 +1,65 @@
+name: "PlayValkyr"
+ver: 0.1
+#screen_width: 3440
+#screen_height: 1440
+#range: !rect l:0, r:1920, t:0, b:1080
+time_scale: 1
+states:
+  - id: 1
+    name: "桌面"
+    find:
+      # 查找浏览器PlayValkyr窗口
+      window:
+        title: "Play Valkyrio - Google Chrome"
+#        win_class:
+        fail_action: raise_error('没有找到Play Valkyrio窗口！')
+        activate: True
+        wait: 1
+        set_pos: !rect l:0, r:1440, t:0, b:1200
+    transition:
+      action:
+        - win_rect = get_window_rect(find_result.hwnd)
+  - id: 2
+    name: "首页"
+    find:
+      # 查找selecto按钮
+      image:
+        snapshot: !rect l:596, r:827, t:888, b:1007
+        template: auto_playvalkyr/select.png
+      fail_action: raise_error('没找到select按钮')
+    transition:
+      action:
+        - click(find_result.rect_on_screen.center)
+      wait: 2
+  - id: 3
+    name: "战斗"
+    find:
+      # 查找最弱的敌人
+      image:
+        snapshot: !rect l:596, r:827, t:888, b:1007
+        template: auto_playvalkyr/veryweak.png
+      fail_action: raise_error('没找到最弱的敌人')
+    transition:
+      action:
+        - click(find_result.rect_on_screen.center)
+      wait: 2
+  - id: 4
+    name: "MetaMask插件"
+    find:
+      # 查找付费按钮
+      image:
+        snapshot: !rect l:596, r:827, t:888, b:1007
+        template: auto_playvalkyr/metamask.png
+      fail_action: raise_error('没找到付费按钮')
+    transition:
+      action:
+        - click(find_result.rect_on_screen.center)
+      wait: 60
+  - id: 5
+    name: "返回首页"
+    find:
+      # 查找selecto按钮
+      image:
+        snapshot: !rect l:596, r:827, t:888, b:1007
+        template: auto_playvalkyr/select.png
+      fail_action: raise_error('没找到select按钮')
