@@ -82,7 +82,7 @@ states:
             fail_action: level_return(state.id)
           transition:
             to: next
-        - id: 61
+        - id: 62
           name: 缩略图
           check:
             image:
@@ -93,10 +93,11 @@ states:
             fail_action: level_return(state.id)
           transition:
             action:
-              - name = ocr(head_rect.topright.offset_rect(0,0, 90, 180))
+              - data_to_form = {}
+              - data_to_form['name'] = ocr(snapshot(head_rect.topright.offset_rect(0,-5, 84, 17)))
               - click(head_rect.bottomright.offset(45,80))
               - wait(0.5)
-        - id: 62
+        - id: 63
           name: 检测图片窗口
 #          check:
 #            image:
@@ -115,16 +116,17 @@ states:
           transition:
             # 点击
             action:
-              - form = get_window_rect(find_result.hwnd)
+              - form_rect = get_window_rect(find_result.hwnd)
               - print(wechat)
-              - move(form.center)
+              - move(form_rect.center)
               - wait(0.5)
             wait: 1
-        - id: 63
+        - id: 64
           name: "提取form信息"
           form:
             file: "result.csv"
-            snapshot: form
+            snapshot: form_rect
+            in_data: data_to_form
             part_splitter:
               name: "用分割符切割窗口"
               start:

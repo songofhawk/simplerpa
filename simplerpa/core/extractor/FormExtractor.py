@@ -55,9 +55,12 @@ class FormExtractor(Extractor):
         self.field_names = None
 
     def prepare(self):
+        df = super(FormExtractor, self).prepare()
+
         if self.field_names is None:
             self.field_names = list(map(lambda x: x.name, self.fields))
-        df = ActionData.create_dataframe(self.field_names)
+        df1 = ActionData.create_dataframe(self.field_names)
+        df = df.join(df1, how="outer")
         return df
 
     def do_once(self, image):

@@ -7,4 +7,7 @@ class ActionData:
 
     @staticmethod
     def create_dataframe(column_names):
-        return pd.DataFrame(columns=column_names)
+        if isinstance(column_names,list):
+            return pd.DataFrame(columns=column_names)
+        else:
+            return pd.DataFrame()
