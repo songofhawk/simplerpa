@@ -41,16 +41,16 @@ states:
       fail_action: raise_error('没找到最弱的敌人')
     transition:
       action:
-        - click(find_result.rect_on_screen.center.offset(0, 312))
+        - click(find_result.rect_on_screen.center.x, 1109)
       wait: 2
   - id: 4
     name: "MetaMask插件"
     find:
       # 查找付费按钮
       image:
-        snapshot: !rect l:596, r:827, t:888, b:1007
-        template: auto_playvalkyr/metamask.png
-      fail_action: raise_error('没找到付费按钮')
+        snapshot: !rect l:962, r:1318, t:76, b:676
+        template: auto_playvalkyr/confirm.png
+      fail_action: raise_error('没找到确认付费按钮')
     transition:
       action:
         - click(find_result.rect_on_screen.center)
