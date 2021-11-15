@@ -1,6 +1,6 @@
 import cv2
 
-from core.action.ActionImage import ActionImage
+from simplerpa.core.action.ActionImage import ActionImage
 from simplerpa.core.action.ActionScreen import ActionScreen
 from simplerpa.core.action.ActionSystem import ActionSystem
 from .Monitor import Monitor

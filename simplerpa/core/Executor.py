@@ -75,6 +75,7 @@ class Executor:
 
         form = the_state.form
         if isinstance(form, Extractor):
+            Action.test = 9
             form.do()
 
         foreach = the_state.foreach

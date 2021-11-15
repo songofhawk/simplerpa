@@ -1,5 +1,4 @@
-from core.action.ActionSystem import ActionSystem
-from core.data import Action
+from simplerpa.core.action.ActionSystem import ActionSystem
 from simplerpa.core.action.ActionWindow import ActionWindow
 from simplerpa.core.data.ScreenRect import ScreenRect
 from simplerpa.core.detection.Detection import Detection

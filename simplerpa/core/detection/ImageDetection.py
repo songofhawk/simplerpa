@@ -3,7 +3,7 @@ from typing import Tuple
 import PIL
 import cv2
 import numpy as np
-from core.data.StateBlockBase import StateBlockBase
+from simplerpa.core.data.StateBlockBase import StateBlockBase
 from simplerpa.core.action.ActionImage import ActionImage
 from simplerpa.core.action.ActionScreen import ActionScreen
 from simplerpa.core.data import Action

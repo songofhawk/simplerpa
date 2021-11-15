@@ -68,6 +68,8 @@ class Action(StateBlockBase):
 
     _call_env = {**func_dict, **{}}
 
+    test = '5'
+
     def __init__(self, action_str):
         self._action_str = action_str
         if action_str.startswith('locate_state'):
@@ -133,7 +135,7 @@ class Evaluation(Action):
 
     def evaluate_exp(self):
         super()._prepare_exp()
-        return eval(self.exp, {"__builtins__": {}}, Action._call_env)
+        return eval(self.exp, {"__builtins__": {}}, self._call_env)
 
 
 class Execution(Action):
@@ -147,4 +149,4 @@ class Execution(Action):
 
     def evaluate_exp(self):
         super()._prepare_exp()
-        return exec(self.exp, {"__builtins__": {}}, Action._call_env)
+        return exec(self.exp, {"__builtins__": {}}, self._call_env)

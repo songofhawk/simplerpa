@@ -1,10 +1,10 @@
-from core.action.ActionData import ActionData
-from core.action.ActionImage import ActionImage
-from core.action.ActionScreen import ActionScreen
-from core.data.Action import Evaluation
-from core.data.ScreenRect import ScreenRect
-from core.data.StateBlockBase import StateBlockBase
-from core.detection.ImageDetection import ImageDetection
+from simplerpa.core.action.ActionData import ActionData
+from simplerpa.core.action.ActionImage import ActionImage
+from simplerpa.core.action.ActionScreen import ActionScreen
+from simplerpa.core.data.Action import Evaluation
+from simplerpa.core.data.ScreenRect import ScreenRect
+from simplerpa.core.data.StateBlockBase import StateBlockBase
+from simplerpa.core.detection.ImageDetection import ImageDetection
 
 
 class PartSplitter(StateBlockBase):
@@ -80,10 +80,12 @@ class Extractor(StateBlockBase):
 
     def __init__(self):
         self.image = None
+        self.in_data_dict = None
 
     def prepare(self):
-        data_dict = self.in_data.evaluate_exp()
-        df = ActionData.create_dataframe(data_dict.keys() if self.in_data is not None else None)
+        data_dict = self.in_data.call_once()
+        self.in_data_dict = data_dict
+        df = ActionData.create_dataframe(data_dict.keys() if data_dict is not None else None)
         return df
 
     def do_once(self, image):
@@ -102,11 +104,11 @@ class Extractor(StateBlockBase):
             for index, part in enumerate(image_parts):
                 ActionImage.log_image('part-{}'.format(index), part)
                 data_dict = self.do_once(part)
-                data_dict.update(self.in_data)
+                data_dict.update(self.in_data_dict)
                 df = df.append(data_dict, ignore_index=True)
         else:
             data_dict = self.do_once(image_source)
-            data_dict.update(self.in_data)
+            data_dict.update(self.in_data_dict)
             df = df.append(data_dict, ignore_index=True)
 
         with open(self.file, 'a', encoding="utf-8", newline='') as f:

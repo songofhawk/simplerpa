@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 
-from core.action.ActionSystem import ActionSystem
+# from core.action.ActionSystem import ActionSystem
 from . import Misc
 from .StateBlockBase import StateBlockBase
 from simplerpa.core.action import ActionMouse
@@ -12,6 +12,7 @@ from simplerpa.core.detection.OcrDetection import OcrDetection
 from simplerpa.core.detection.ColorDetection import ColorDetection
 from simplerpa.core.detection.WindowDetection import WindowDetection
 from simplerpa.core.share import list_util
+from ..action.ActionSystem import ActionSystem
 
 
 class Scroll(StateBlockBase):

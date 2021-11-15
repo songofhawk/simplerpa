@@ -78,7 +78,7 @@ states:
               snapshot: head_rect.snap_right(30, 5)
               template: auto_wechat/angle.png
               for_not_exist: True
-              debug: True
+#              debug: True
             fail_action: level_return(state.id)
           transition:
             to: next
@@ -95,6 +95,7 @@ states:
             action:
               - data_to_form = {}
               - data_to_form['name'] = ocr(snapshot(head_rect.topright.offset_rect(0,-5, 84, 17)))
+              - print('data_to_form:{}'.format(data_to_form))
               - click(head_rect.bottomright.offset(45,80))
               - wait(0.5)
         - id: 63
@@ -119,10 +120,13 @@ states:
               - form_rect = get_window_rect(find_result.hwnd)
               - print(wechat)
               - move(form_rect.center)
+              - print('data_to_form:{}'.format(data_to_form))
               - wait(0.5)
             wait: 1
         - id: 64
           name: "提取form信息"
+          action:
+            - print('data_to_form:{}'.format(data_to_form))
           form:
             file: "result.csv"
             snapshot: form_rect
