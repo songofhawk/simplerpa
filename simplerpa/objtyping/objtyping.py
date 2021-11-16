@@ -72,6 +72,8 @@ def from_dict_list(dict_list_obj, clazz: T, reserve_extra_attr=True, init_empty_
             obj = DataObject()
             types = None
         else:
+            clazz = find_sub_class(dict_list_obj, clazz)
+            # 如果定义的类包含子类，那么根据dict中的key来推断使用哪个子类
             obj = clazz()
             types = get_type_definition(obj)
 
@@ -133,3 +135,23 @@ def to_dict_list(obj):
         for k, v in obj.__dict__.items():
             dict1[k] = to_dict_list(v)
         return dict1
+
+
+def find_sub_class(dict_obj, clazz):
+    sub_list = clazz.__subclasses__()
+    if sub_list is None or len(sub_list) == 0:
+        return clazz
+    got_the_clazz = True
+    sub_clazz = None
+    for sub_clazz in sub_list:
+        for k in dict_obj.keys():
+            if k not in sub_clazz:
+                got_the_clazz = False
+                break
+        if not got_the_clazz:
+            continue
+        break
+    if got_the_clazz:
+        return sub_clazz
+    else:
+        return clazz

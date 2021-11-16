@@ -4,6 +4,8 @@ from simplerpa.core.action.ActionImage import ActionImage
 from simplerpa.core.action.ActionScreen import ActionScreen
 from simplerpa.core.action.ActionSystem import ActionSystem
 from .Monitor import Monitor
+from ..const import MONITOR_RESULT
+from ..data.Action import Action
 from ..data.ScreenRect import ScreenRect
 
 
@@ -46,6 +48,8 @@ class ImageMonitor(Monitor):
             i += 1
         if self.debug:
             print("Monitoring change, rate:{}, position:{}".format(change.rate, change.position))
+        Action.save_call_env({MONITOR_RESULT: change})
+
         return change
 
     def _check_change(self, rect):

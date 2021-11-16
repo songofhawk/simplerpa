@@ -1,18 +1,20 @@
 from __future__ import annotations
 
-import time
+from typing import List
 
-# from core.action.ActionSystem import ActionSystem
-from . import Misc
-from .StateBlockBase import StateBlockBase
 from simplerpa.core.action import ActionMouse
 from simplerpa.core.data.Action import Execution, Action
+from simplerpa.core.detection.ColorDetection import ColorDetection
 from simplerpa.core.detection.ImageDetection import ImageDetection
 from simplerpa.core.detection.OcrDetection import OcrDetection
-from simplerpa.core.detection.ColorDetection import ColorDetection
 from simplerpa.core.detection.WindowDetection import WindowDetection
 from simplerpa.core.share import list_util
+
+from . import Misc
+from .StateBlockBase import StateBlockBase
 from ..action.ActionSystem import ActionSystem
+from ..const import FIND_RESULT
+from ..detection.Detection import Detection
 
 
 class Scroll(StateBlockBase):
@@ -44,60 +46,54 @@ class Find(StateBlockBase):
         fail_action (Execution) : 如果什么没有找到，需要执行的操作
         result_name (str): 给检测结果一个变量名
     """
+    detections: List[Detection] = None
     image: ImageDetection
     ocr: OcrDetection
     color: ColorDetection
     window: WindowDetection
-    scroll: Scroll
-    fail_action: Execution
+
+    mode: str = "any"
+    order: str = "asc"  # to support 'desc' and 'rand'
     result_name: str = None
-    find_mode: str = "All"
     foreach: Misc.ForEach = None
+    fail: Misc.Transition = None
+    scroll: Scroll
 
-    def do(self, do_fail_action):
-        results = []
-        found_any = False
-        found_all = True
+    def __init__(self):
+        self._prepared = False
+        self.detections = []
+
+    def _prepare(self):
+        if self._prepared:
+            return
         if self.image is not None:
-            res = self._do_once(self.image, do_fail_action)
-            found_any = found_any or (res is not None)
-            found_all = found_all and (res is not None)
-            list_util.append_to(results, res)
-
+            self.detections.append(self.image)
         if self.ocr is not None:
-            res = self._do_once(self.ocr, do_fail_action)
-            found_any = found_any or (res is not None)
-            found_all = found_all and (res is not None)
-            list_util.append_to(results, res)
-
+            self.detections.append(self.ocr)
         if self.color is not None:
-            res = self._do_once(self.color, do_fail_action)
-            found_any = found_any or (res is not None)
-            found_all = found_all and (res is not None)
-            list_util.append_to(results, res)
-
+            self.detections.append(self.color)
         if self.window is not None:
-            res = self._do_once(self.window, do_fail_action)
-            found_any = found_any or (res is not None)
-            found_all = found_all and (res is not None)
-            list_util.append_to(results, res)
+            self.detections.append(self.window)
+        self._prepared = True
 
-        if len(results) == 0:
-            return None
-        else:
+    def do(self):
+        self._prepare()
+        results = []
+        for detect_one in self.detections:
+            res_list = self._detect_once(detect_one)
+            list_util.append_to(results, res_list)
+            if len(res_list) > 0 and self.mode == "any":
+                break
+        if len(results) > 0:
             final_result = results if len(results) > 1 else results[0]
-            if self.find_mode == "All" and found_all:
-                if self.result_name is not None:
-                    Action.save_call_env({self.result_name: final_result})
-                return final_result
-            elif self.find_mode == "Any" and found_any:
-                if self.result_name is not None:
-                    Action.save_call_env({self.result_name: final_result})
-                return final_result
-            else:
-                return None
+            Action.save_call_env({FIND_RESULT: final_result})
+            if self.result_name is not None:
+                Action.save_call_env({self.result_name: final_result})
+        else:
+            Action.save_call_env({FIND_RESULT: None})
+        return results
 
-    def _do_once(self, detection, do_fail_action):
+    def _detect_once(self, detection):
         if detection is None:
             return None
         results = []
@@ -126,27 +122,4 @@ class Find(StateBlockBase):
         if self.foreach is not None:
             self.foreach.do()
 
-        size = len(results)
-        if size == 0:
-            if do_fail_action:
-                Action.call(self.fail_action)
-            return None
-        elif size == 1:
-            return results[0]
-        else:
-            return results
-
-    def flow_control_fail_action(self):
-        # 找到当前find节点中的影响流程运行的fail_action并返回
-        # 一个find节点（即使是list组成的节点）中，只能有一个影响流程运行的fail_action
-        fail_action = self.fail_action
-        if fail_action is None:
-            return None
-
-        if isinstance(fail_action, Action) and fail_action.is_flow_control:
-            return fail_action
-        if isinstance(fail_action, list):
-            for one_action in fail_action:
-                if one_action.is_flow_control:
-                    return one_action
-        return None
+        return results
