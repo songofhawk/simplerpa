@@ -10,7 +10,7 @@ states:
     find:
       window:
         win_class: "ChatWnd"
-        title: "h+测试群"
+        title: "天助定【网约沟通】"
         fail_action: raise_error('没有找到微信！')
         activate: True
         wait: 1
@@ -24,7 +24,7 @@ states:
     id: 3
     find:
       image:
-        template: auto_wechat/h+_title.png
+        template: auto_wechat/wangyue_title.png
         snapshot: wechat
       fail_action: raise_error('没找到网约沟通标题')
     transition:
@@ -54,7 +54,7 @@ states:
     find:
       image:
         template: auto_wechat/chat_head.png
-        snapshot: ScreenRect(content.left, content.left+70, content.top+monitor_result.position, content.bottom)
+        snapshot: ScreenRect(content.left, content.left+70, content.top+monitor_result.position if monitor_result.position is not None else content.top, content.bottom)
         to_binary:
           background: (242,242,242)
           tolerance: 0.1
@@ -94,7 +94,7 @@ states:
           transition:
             action:
               - data_to_form = {}
-              - data_to_form['name'] = ocr(snapshot(head_rect.topright.offset_rect(0,-5, 84, 17)))
+              - data_to_form['name'] = ocr(snapshot(head_rect.topright.offset_rect(0,-5, 120, 17)))
               - print('data_to_form:{}'.format(data_to_form))
               - click(head_rect.bottomright.offset(45,80))
               - wait(0.5)
