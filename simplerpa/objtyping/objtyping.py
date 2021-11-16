@@ -1,16 +1,17 @@
 import inspect
-from typing import get_type_hints, TypeVar
+from typing import get_type_hints, TypeVar, List
 
 
 class DataObject(object):
     pass
 
 
-def get_type_definition(obj):
+def get_obj_definition(obj):
     types_in_class = get_type_hints(type(obj))
-    instance_in_obj = obj.__dict__
-    for k, v in instance_in_obj.items():
-        types_in_class[k] = type(v)
+    # 用实例的类型，来覆盖定义的类型，也许是不对的，定义就是定义
+    # instance_in_obj = obj.__dict__
+    # for k, v in instance_in_obj.items():
+    #     types_in_class[k] = type(v)
 
     # 这里有个合并两个字典的方法，要求python >= 3.5
     # types = {**types_in_class, **types_in_obj}
@@ -75,7 +76,7 @@ def from_dict_list(dict_list_obj, clazz: T, reserve_extra_attr=True, init_empty_
             clazz = find_sub_class(dict_list_obj, clazz)
             # 如果定义的类包含子类，那么根据dict中的key来推断使用哪个子类
             obj = clazz()
-            types = get_type_definition(obj)
+            types = get_obj_definition(obj)
 
         for k, v in dict_list_obj.items():
             if types is not None and k in types:
@@ -144,13 +145,14 @@ def find_sub_class(dict_obj, clazz):
     got_the_clazz = True
     sub_clazz = None
     for sub_clazz in sub_list:
+        types = get_type_hints(sub_clazz)
+        got_the_clazz = True
         for k in dict_obj.keys():
-            if k not in sub_clazz:
+            if k not in types:
                 got_the_clazz = False
                 break
-        if not got_the_clazz:
-            continue
-        break
+        if got_the_clazz:
+            break
     if got_the_clazz:
         return sub_clazz
     else:
