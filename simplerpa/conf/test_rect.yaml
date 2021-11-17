@@ -136,30 +136,57 @@ states:
 #      scroll: up
 ##        confidence: 0.3
 #      debug: True
-  - id: 10
-    name: "测试查找多个图像"
-    check:
-      detections:
-        - snapshot: !rect l:0, r:1600, t:200, b:1400
-          template: auto_playvalkyr/veryweak.png
+#  - id: 10
+#    name: "测试查找多个图像"
+#    check:
+#      detections:
+#        - snapshot: !rect l:0, r:1600, t:200, b:1400
+#          template: auto_playvalkyr/veryweak.png
+##          debug: True
+#        - snapshot: !rect l:0, r:1600, t:200, b:1400
+#          template: auto_playvalkyr/weak.png
 #          debug: True
-        - snapshot: !rect l:0, r:1600, t:200, b:1400
-          template: auto_playvalkyr/weak.png
-          debug: True
-      fail:
-        action:
-          - print('not found')
-        to: 12
-    transition:
-      to: next
-  - id: 11
-    name: "测试查找多个图像-成功"
-    action:
-      - print(find_result)
-      - print("The End")
-  - id: 12
-    name: "测试查找多个图像-失败"
-    action:
-      - print(find_result)
-      - print("Failed")
+#      fail:
+#        action:
+#          - print('not found')
+#        to: 12
+#    transition:
+#      to: next
+#  - id: 11
+#    name: "测试查找多个图像-成功"
+#    action:
+#      - print(find_result)
+#      - print("The End")
+#  - id: 12
+#    name: "测试查找多个图像-失败"
+#    action:
+#      - print(find_result)
+#      - print("Failed")
 
+  - id: 1
+    name: "桌面"
+    find:
+      # 查找浏览器PlayValkyr窗口
+      window:
+        title: "Play Valkyrio - Google Chrome"
+#        win_class:
+        fail_action: raise_error('没有找到Play Valkyrio窗口！')
+        activate: True
+        wait: 1
+        set_pos: !rect l:0, r:1440, t:0, b:1200
+    transition:
+      action:
+        - win_rect = get_window_rect(find_result.hwnd)
+  - id: 2
+    name: "测试play界面中的repeat find"
+    find:
+      # 查找240分
+      ocr:
+        snapshot: win_rect.topleft.offset_rect(263, 270, 28, 13)
+        text: "17"
+        fail_action: raise_error('没找到指定的分数')
+        debug: True
+    transition:
+      action:
+        - print(found)
+      to: end

@@ -75,6 +75,6 @@ states:
     find:
       # 查找selecto按钮
       ocr:
-        snapshot: !rect l:250, r:280, t:160, b:170
+        snapshot: !
         text: 240
       fail_action: raise_error('没找到select按钮')

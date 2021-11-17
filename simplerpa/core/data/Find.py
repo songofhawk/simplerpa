@@ -32,6 +32,17 @@ class Scroll(StateBlockBase):
     find_mode: str = "Any"
 
 
+class Repeat(StateBlockBase):
+    """
+    重复性地执行detections
+    Attributes:
+        interval (float): 重复间隔时间，单位为秒
+        times (int): 重复执行次数，如果等于None则一直重复下去，直到detections找到结果为止
+    """
+    interval: float = 1
+    times: int = None
+
+
 class Find(StateBlockBase):
     """
     用于查找的基础配置，可以有不同的查找模式，在State节点中，它如果是check属性，则不保存查找结果，如果是find属性，则把查找结果，临时存入find_result
@@ -59,6 +70,8 @@ class Find(StateBlockBase):
     fail: Misc.Transition = None
     scroll: Scroll
 
+    repeat: Repeat = None
+
     def __init__(self):
         self._prepared = False
         self.detections = []
@@ -79,18 +92,25 @@ class Find(StateBlockBase):
     def do(self):
         self._prepare()
         results = []
-        for detect_one in self.detections:
-            res_list = self._detect_once(detect_one)
-            list_util.append_to(results, res_list)
-            if len(res_list) > 0 and self.mode == "any":
+
+        times = 0
+        max_times = 1 if self.repeat is None else self.repeat.times
+        while times < max_times:
+            for detect_one in self.detections:
+                res_list = self._detect_once(detect_one)
+                list_util.append_to(results, res_list)
+                if len(res_list) > 0 and self.mode == "any":
+                    break
+            if len(results) > 0:
+                final_result = results if len(results) > 1 else results[0]
+                Action.save_call_env({FIND_RESULT: final_result})
+                if self.result_name is not None:
+                    Action.save_call_env({self.result_name: final_result})
                 break
-        if len(results) > 0:
-            final_result = results if len(results) > 1 else results[0]
-            Action.save_call_env({FIND_RESULT: final_result})
-            if self.result_name is not None:
-                Action.save_call_env({self.result_name: final_result})
-        else:
-            Action.save_call_env({FIND_RESULT: None})
+            else:
+                Action.save_call_env({FIND_RESULT: None})
+
+            times += 1
         return results
 
     def _detect_once(self, detection):
