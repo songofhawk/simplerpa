@@ -45,7 +45,7 @@ class Transition(StateBlockBase):
     sub_states: List[State] = None
     max_time: int = None
 
-    def __init__(self, to_str='end'):
+    def __init__(self, to_str='next'):
         self._trans_time = 0
         self.to = To(to_str)
 
