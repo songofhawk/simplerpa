@@ -74,12 +74,13 @@ class ActionImage:
         res_chars = cls.cnocr.ocr_for_single_line(img_high_contrast)
 
         if len(res_chars) == 0:
-            print('ocr result: ')
-            return ''
+            result = ''
         else:
             result = ''.join(list(map(str, res_chars[0])))
+
+        if debug:
             print('ocr result: {}'.format(result))
-            return result
+        return result
 
     @classmethod
     def grayscale_linear_transformation(cls, img_gray, new_min=0, new_max=255):

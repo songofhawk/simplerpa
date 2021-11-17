@@ -75,6 +75,7 @@ class Find(StateBlockBase):
     def __init__(self):
         self._prepared = False
         self.detections = []
+        self.fail = Misc.Transition(action_str='raise_error("find failed!")')
 
     def _prepare(self):
         if self._prepared:

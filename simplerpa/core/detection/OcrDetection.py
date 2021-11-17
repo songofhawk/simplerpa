@@ -30,7 +30,7 @@ class OcrDetection(Detection):
     text: str
     confidence: float = 0.8
 
-    def do(self, find_all=False):
+    def do_detection(self, find_all=False):
         image_current = ActionScreen.snapshot(self.snapshot.evaluate())
         confidence, text = self.text_similar(self.text, image_current)
         if confidence >= self.confidence:
@@ -52,9 +52,7 @@ class OcrDetection(Detection):
 
         cv_image = ActionImage.pil_to_cv(target_pillow_image)
         ActionImage.log_image('target', cv_image, debug=self.debug)
-        text_from_image = ActionImage.ocr(cv_image)
-        if self.debug:
-            print('ocr result: {}'.format(text_from_image))
+        text_from_image = ActionImage.ocr(cv_image, debug=self.debug)
 
         if source_text in text_from_image:
             return len(source_text) / len(text_from_image), text_from_image
