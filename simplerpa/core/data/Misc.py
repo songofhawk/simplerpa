@@ -24,6 +24,10 @@ class To(StateBlockBase):
             return
         else:
             self.is_next = False
+
+        if _to == 'end':
+            self.id = None
+
         if isinstance(_to, int):
             self.id = _to
         elif _to.isdigit():
@@ -34,15 +38,16 @@ class Transition(StateBlockBase):
     """
     状态迁移配置节点，指定什么动作会触发迁移
     """
-    action: Execution
-    wait_before: int
-    wait: int
+    action: Execution = None
+    wait_before: int = None
+    wait: int = None
     to: To
-    sub_states: List[State]
-    max_time: int
+    sub_states: List[State] = None
+    max_time: int = None
 
-    def __init__(self):
+    def __init__(self, to_str='end'):
         self._trans_time = 0
+        self.to = To(to_str)
 
     def count(self):
         self._trans_time += 1
@@ -74,6 +79,10 @@ class State(StateBlockBase):
     foreach: ForEach
     form: FormExtractor.FormExtractor = None
 
+    def __init__(self):
+        # 缺省的Transition是to end
+        self.transition = Transition()
+
 
 class ForEach(StateBlockBase):
     in_items: Evaluation
@@ -103,4 +112,3 @@ class ForEach(StateBlockBase):
         sub_states = self.sub_states
         if sub_states is not None and len(sub_states) > 0:
             self.project.executor.drill_into_substates(sub_states)
-

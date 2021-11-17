@@ -140,13 +140,15 @@ states:
     name: "测试查找多个图像"
     check:
       detections:
-        - snapshot: !rect l:1443, r:1943, t:669, b:945
+        - snapshot: !rect l:0, r:1600, t:200, b:1400
           template: auto_playvalkyr/veryweak.png
-          debug: True
-        - snapshot: !rect l:1443, r:1943, t:669, b:945
+#          debug: True
+        - snapshot: !rect l:0, r:1600, t:200, b:1400
           template: auto_playvalkyr/weak.png
           debug: True
       fail:
+        action:
+          - print('not found')
         to: 12
     transition:
       to: next

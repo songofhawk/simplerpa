@@ -22,7 +22,7 @@ def has_init_argument(clazz):
     signature = inspect.signature(clazz.__init__)
     for name, parameter in signature.parameters.items():
         # print(clazz.__name__, name, parameter.default, parameter.annotation, parameter.kind)
-        if name not in ['self', 'args', 'kwargs']:
+        if name not in ['self', 'args', 'kwargs'] and parameter.default is inspect.Parameter.empty:
             return True
     return False
 

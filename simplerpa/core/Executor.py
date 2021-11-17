@@ -1,14 +1,12 @@
 import time
 
-from simplerpa.core.extractor.Extractor import Extractor
 from simplerpa.core.Variable import Variable
-from simplerpa.core.action.ActionScreen import ActionScreen
-from simplerpa.core.const import STATE, FIND_RESULT, MONITOR_RESULT
 from simplerpa.core.data.Action import Action
-from simplerpa.core.data.Misc import Find
+from simplerpa.core.action.ActionScreen import ActionScreen
+from simplerpa.core.const import STATE
 from simplerpa.core.data.Misc import ForEach
 from simplerpa.core.data.Project import Project
-from simplerpa.core.share import list_util
+from simplerpa.core.extractor.Extractor import Extractor
 
 
 class Env(object):
@@ -60,8 +58,8 @@ class Executor:
 
         # check中如果触发了影响流程的fail_action，那么就退出当前状态，直接按照该action指定的状态迁移
         if not self._do_find(the_state.check):
-            self._current_state = None
-            self._current_index = None
+            fail_trans = the_state.check.fail
+            self._do_transition(fail_trans)
             return
 
         # monitor
@@ -84,11 +82,12 @@ class Executor:
         else:
             transition = the_state.find.fail
 
+        self._do_transition(transition)
+
+    def _do_transition(self, transition):
         '''从这里开始，处理transition模块'''
         if transition is None:
-            print('reach the end state!')
-            self._current_state = None
-            self._current_index = None
+            # 改成transition为空的话，什么也不做
             return
         if transition.reach_max_time():
             print('reach max time({}) of transition, terminate!'.format(transition.max_time))
