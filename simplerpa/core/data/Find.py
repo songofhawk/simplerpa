@@ -110,6 +110,8 @@ class Find(StateBlockBase):
                 break
             else:
                 Action.save_call_env({FIND_RESULT: None})
+            if self.repeat is not None:
+                ActionSystem.wait(self.repeat.interval)
 
             times += 1
         return results

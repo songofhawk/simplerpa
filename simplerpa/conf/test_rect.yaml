@@ -183,9 +183,15 @@ states:
       # 查找240分
       ocr:
         snapshot: win_rect.topleft.offset_rect(263, 270, 28, 13)
-        text: "17"
-        fail_action: raise_error('没找到指定的分数')
+        to_binary:
+          forground: (255,255,255)
+          tolerance: 0.1
+        text: "111"
+#        fail_action: raise_error('没找到指定的分数')
         debug: True
+      repeat:
+        times: 1000
+        interval: 3
     transition:
       action:
 #        - print(found)
