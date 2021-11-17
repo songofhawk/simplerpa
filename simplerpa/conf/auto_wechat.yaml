@@ -26,7 +26,7 @@ states:
       image:
         template: auto_wechat/wangyue_title.png
         snapshot: wechat
-      fail_action: raise_error('没找到网约沟通标题')
+        fail_action: raise_error('没找到网约沟通标题')
     transition:
       action:
         - content_top = find_result.rect_on_screen.bottom
@@ -36,7 +36,7 @@ states:
       image:
         template: auto_wechat/chat_toolbar.png
         snapshot: wechat
-      fail_action: raise_error('没找到聊天工具栏')
+        fail_action: raise_error('没找到聊天工具栏')
     transition:
       action:
         - content_bottom = find_result.rect_on_screen.top
