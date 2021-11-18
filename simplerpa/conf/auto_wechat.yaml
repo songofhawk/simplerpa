@@ -152,7 +152,7 @@ states:
       #            background: (255,255,255)
                   tolerance: 0.15
                 detect_all: True
-                debug: True
+#                debug: True
                 auto_scale: (1,1.5)
               end:
                 template: auto_wechat/form_end.png

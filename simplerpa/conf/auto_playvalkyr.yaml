@@ -5,61 +5,62 @@ ver: 0.1
 #range: !rect l:0, r:1920, t:0, b:1080
 time_scale: 1
 states:
-  - id: 1
-    name: "桌面"
-    find:
-      # 查找浏览器PlayValkyr窗口
-      window:
-        title: "Play Valkyrio - Google Chrome"
-#        win_class:
-        fail_action: raise_error('没有找到Play Valkyrio窗口！')
-        activate: True
-        wait: 1
-        set_pos: !rect l:0, r:1440, t:0, b:1200
-    transition:
-      action:
-        - win_rect = get_window_rect(find_result.hwnd)
-  - id: 2
-    name: "首页"
-    find:
-      # 查找select按钮
-      image:
-        snapshot: !rect l:596, r:827, t:888, b:1007
-        template: auto_playvalkyr/select.png
-        fail_action: raise_error('没找到select按钮')
-    transition:
-      action:
-        - click(find_result.rect_on_screen.center)
-      wait: 2
-  - id: 3
-    name: "战斗"
-    find:
-      # 查找最弱的敌人
-      detections:
-        - snapshot: !rect l:88, r:1402, t:687, b:878
-          template: auto_playvalkyr/veryweak.png
-        - snapshot: !rect l:88, r:1402, t:687, b:878
-          template: auto_playvalkyr/weak.png
-        - snapshot: !rect l:88, r:1402, t:687, b:878
-          template: auto_playvalkyr/strong.png
-      fail:
-        action: raise_error('没找到最弱,弱或者强壮的敌人')
-    transition:
-      action:
-        - search_rect = find_result.rect_on_screen.snap_bottom(400, 120)
-      wait: 1
-  - id: 3
-    name: "战斗-next"
-    find:
-      # 查找最弱的敌人
-      image:
-        snapshot: search_rect
-        template: auto_playvalkyr/fight.png
-        fail_action: raise_error('没找到战斗按钮')
-    transition:
-      action:
-        - click(find_result.rect_on_screen.center)
-      wait: 1
+#  - id: 1
+#    name: "桌面"
+#    find:
+#      # 查找浏览器PlayValkyr窗口
+#      window:
+#        title: "Play Valkyrio - Google Chrome"
+##        win_class:
+#        fail_action: raise_error('没有找到Play Valkyrio窗口！')
+#        activate: True
+#        wait: 1
+#        set_pos: !rect l:0, r:1440, t:0, b:1200
+#    transition:
+#      action:
+#        - win_rect = get_window_rect(find_result.hwnd)
+#  - id: 2
+#    name: "首页"
+#    find:
+#      # 查找select按钮
+#      image:
+#        snapshot: !rect l:596, r:827, t:880, b:1007
+#        template: auto_playvalkyr/select.png
+#        fail_action: raise_error('没找到select按钮')
+#        debug: True
+#    transition:
+#      action:
+#        - click(find_result.rect_on_screen.center)
+#      wait: 2
+#  - id: 3
+#    name: "战斗"
+#    find:
+#      # 查找最弱的敌人
+#      detections:
+#        - snapshot: !rect l:88, r:1402, t:687, b:878
+#          template: auto_playvalkyr/veryweak.png
+#        - snapshot: !rect l:88, r:1402, t:687, b:878
+#          template: auto_playvalkyr/weak.png
+#        - snapshot: !rect l:88, r:1402, t:687, b:878
+#          template: auto_playvalkyr/strong.png
+#      fail:
+#        action: raise_error('没找到最弱,弱或者强壮的敌人')
+#    transition:
+#      action:
+#        - search_rect = find_result.rect_on_screen.snap_bottom(400, 120)
+#      wait: 3
+#  - id: 3
+#    name: "战斗-next"
+#    find:
+#      # 查找最弱的敌人
+#      image:
+#        snapshot: search_rect
+#        template: auto_playvalkyr/fight.png
+#        fail_action: raise_error('没找到战斗按钮')
+#    transition:
+#      action:
+#        - click(find_result.rect_on_screen.center)
+#      wait: 1
   - id: 4
     name: "MetaMask插件"
     find:
@@ -67,11 +68,27 @@ states:
       image:
         snapshot: !rect l:962, r:1318, t:76, b:676
         template: auto_playvalkyr/confirm.png
-        fail_action: raise_error('没找到确认付费按钮')
+#        fail_action: raise_error('没找到确认付费按钮')
+      fail:
+        to: 10
     transition:
       action:
         - click(find_result.rect_on_screen.center)
-      wait: 60
+      wait: 300
+      to: 5
+  - id: 10
+    name: "MetaMask插件"
+    find:
+      # 查找付费按钮
+      image:
+        snapshot: !rect l:1290, r:1328, t:45, b:81
+        template: auto_playvalkyr/plugin_metamask.png
+        fail_action: raise_error('没找到插件按钮')
+    transition:
+      action:
+        - click(find_result.rect_on_screen.center)
+      wait: 3
+      to: 4
   - id: 5
     name: "返回首页"
     find:
