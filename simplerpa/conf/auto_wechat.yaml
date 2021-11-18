@@ -150,9 +150,9 @@ states:
                 to_binary:
                   foreground: (153,153,153)
       #            background: (255,255,255)
-                  tolerance: 0.1
+                  tolerance: 0.15
                 detect_all: True
-#                debug: True
+                debug: True
                 auto_scale: (1,1.5)
               end:
                 template: auto_wechat/form_end.png
@@ -162,7 +162,7 @@ states:
                 detect_all: True
                 auto_scale: (0.8,2)
                 confidence: 0.6
-#                debug: True
+                debug: True
             fail:
               action:
                 - print('提取失败')
@@ -207,7 +207,7 @@ states:
                   to_binary:
                     foreground: (237,104,44)
                     tolerance: 0.3
-                  auto_scale: (0.8,2)
+                  auto_scale: (1,2)
                   confidence: 0.6
 #                  debug: True
 #                debug: True
