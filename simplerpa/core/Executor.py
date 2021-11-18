@@ -74,8 +74,10 @@ class Executor:
             transition = the_state.transition
             form = the_state.form
             if isinstance(form, Extractor):
-                form.do()
-
+                if form.do() is None:
+                    fail_trans = form.fail
+                    self._do_transition(fail_trans)
+                    return
             foreach = the_state.foreach
             if isinstance(foreach, ForEach):
                 foreach.do()
@@ -105,9 +107,9 @@ class Executor:
             time.sleep(transition.wait)
 
         # 如果有子状态集，进入首选子状态
-        sub_states = transition.sub_states
-        if sub_states is not None and len(sub_states) > 0:
-            self.drill_into_substates(sub_states)
+        # sub_states = transition.sub_states
+        # if sub_states is not None and len(sub_states) > 0:
+        #     self.drill_into_substates(sub_states)
 
         # 迁移到下一个状态
         transition.count()

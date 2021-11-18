@@ -4,6 +4,7 @@ from simplerpa.core.action.ActionScreen import ActionScreen
 from simplerpa.core.data.Action import Evaluation
 from simplerpa.core.data.ScreenRect import ScreenRect
 from simplerpa.core.data.StateBlockBase import StateBlockBase
+from simplerpa.core.data.Transition import Transition
 from simplerpa.core.detection.ImageDetection import ImageDetection
 
 
@@ -23,8 +24,9 @@ class PartSplitter(StateBlockBase):
             start_found_list = self.start.do_detection(image_current)
             if start_found_list is None:
                 print("start template not found in splitter '{}'".format(self.name))
-        if start_found_list is not None:
-            start_found_list.sort(key=lambda x: x.rect_on_image.top, reverse=False)
+        if start_found_list is None:
+            return None
+        start_found_list.sort(key=lambda x: x.rect_on_image.top, reverse=False)
 
         end_found_list = None
         if self.end is not None:
@@ -32,8 +34,9 @@ class PartSplitter(StateBlockBase):
             end_found_list = self.end.do_detection(image_current)
             if end_found_list is None:
                 print("end template not found in splitter '{}'".format(self.name))
-        if end_found_list is not None:
-            end_found_list.sort(key=lambda x: x.rect_on_image.top, reverse=False)
+        if end_found_list is None:
+            return None
+        end_found_list.sort(key=lambda x: x.rect_on_image.top, reverse=False)
 
         pre_top = None
         pre_bottom = None
@@ -77,6 +80,7 @@ class Extractor(StateBlockBase):
     part_splitter: PartSplitter = None
     file: str = "result.csv"
     in_data: Evaluation = None
+    fail: Transition = None
 
     def __init__(self):
         self.image = None
@@ -101,6 +105,8 @@ class Extractor(StateBlockBase):
 
         if self.part_splitter is not None:
             image_parts = self.part_splitter.split_parts(self.snapshot, image_source)
+            if image_parts is None:
+                return None
             for index, part in enumerate(image_parts):
                 ActionImage.log_image('part-{}'.format(index), part)
                 data_dict = self.do_once(part)
@@ -113,3 +119,5 @@ class Extractor(StateBlockBase):
 
         with open(self.file, 'a', encoding="utf-8", newline='') as f:
             df.to_csv(f, header=f.tell() == 0)
+
+        return df

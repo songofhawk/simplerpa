@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
+import simplerpa.core.data.Transition
 from simplerpa.core.action import ActionMouse
 from simplerpa.core.data.Action import Execution, Action
 from simplerpa.core.detection.ColorDetection import ColorDetection
@@ -67,7 +68,7 @@ class Find(StateBlockBase):
     order: str = "asc"  # to support 'desc' and 'rand'
     result_name: str = None
     foreach: Misc.ForEach = None
-    fail: Misc.Transition = None
+    fail: simplerpa.core.data.Transition.Transition = None
     scroll: Scroll
 
     repeat: Repeat = None
@@ -75,7 +76,7 @@ class Find(StateBlockBase):
     def __init__(self):
         self._prepared = False
         self.detections = []
-        self.fail = Misc.Transition(action_str='raise_error("find failed!")')
+        self.fail = simplerpa.core.data.Transition.Transition(action_str='raise_error("find failed!")')
 
     def _prepare(self):
         if self._prepared:

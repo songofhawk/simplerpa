@@ -163,6 +163,13 @@ states:
                 auto_scale: (0.8,2)
                 confidence: 0.6
 #                debug: True
+            fail:
+              action:
+                - print('提取失败')
+                - hotkey('alt','f4')
+                - wait(0.5)
+              to: end
+
             fields:
               - name: time
                 feature:
