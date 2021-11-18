@@ -79,7 +79,11 @@ class ActionWindow:
             int,None: 找到的窗口句柄（hwnd），如果没找到则返回None
         """
         try:
-            return win32gui.FindWindow(win_class, title)
+            hwnd = win32gui.FindWindow(win_class, title)
+            if hwnd == 0:
+                return None
+            else:
+                return hwnd
         except Exception as ex:
             print('error calling win32gui.FindWindow ' + str(ex))
             return None

@@ -144,6 +144,10 @@ class ImageDetection(Detection):
         ActionImage.log_image('current', image_current, debug=self.debug)
 
         image_template = ActionImage.load_from_file(template_file_path)
+        if image_template.shape[0] > image_current.shape[0] or image_template.shape[1] > image_current.shape[1]:
+            # 如果源图比模板图还小，那肯定找不到了，直接返回空
+            return None
+
         if self.grayscale:
             image_template = ActionImage.to_grayscale(image_template, high_contrast=True, keep3channel=True)
         if self.to_binary is not None:

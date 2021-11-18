@@ -22,11 +22,11 @@ states:
   - id: 2
     name: "首页"
     find:
-      # 查找selecto按钮
+      # 查找select按钮
       image:
         snapshot: !rect l:596, r:827, t:888, b:1007
         template: auto_playvalkyr/select.png
-      fail_action: raise_error('没找到select按钮')
+        fail_action: raise_error('没找到select按钮')
     transition:
       action:
         - click(find_result.rect_on_screen.center)
@@ -47,6 +47,7 @@ states:
     transition:
       action:
         - search_rect = find_result.rect_on_screen.snap_bottom(400, 120)
+      wait: 1
   - id: 3
     name: "战斗-next"
     find:
@@ -58,6 +59,7 @@ states:
     transition:
       action:
         - click(find_result.rect_on_screen.center)
+      wait: 1
   - id: 4
     name: "MetaMask插件"
     find:
@@ -73,8 +75,8 @@ states:
   - id: 5
     name: "返回首页"
     find:
-      # 查找selecto按钮
-      ocr:
-        snapshot: !
-        text: 240
-      fail_action: raise_error('没找到select按钮')
+      # 查找selector按钮
+      image:
+        snapshot: !rect l:596, r:827, t:888, b:1007
+        template: auto_playvalkyr/select.png
+        fail_action: raise_error('没找到select按钮')

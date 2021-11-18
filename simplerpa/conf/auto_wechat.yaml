@@ -51,6 +51,9 @@ states:
       scroll: up
       threshold: 0.01
 #      debug: True
+    actin:
+      - print('content:{}'.format(content))
+      - print('position:{}'.format(monitor_result.position))
     find:
       image:
         template: auto_wechat/chat_head.png
@@ -65,6 +68,10 @@ states:
       #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
       #        page_count: 20
 #      fail_action: raise_error('没找到人物头像')
+      fail:
+        action:
+          - print('没找到头像, 返回监控')
+        to: 5
     foreach:
       in_items: find_result
       item: head
@@ -79,7 +86,8 @@ states:
               template: auto_wechat/angle.png
               for_not_exist: True
 #              debug: True
-            fail_action: level_return(state.id)
+            fail:
+              to: end
           transition:
             to: next
         - id: 62
@@ -90,14 +98,15 @@ states:
               template: auto_wechat/snapshot_thumbnail.png
               confidence: 0.6
 #              debug: True
-            fail_action: level_return(state.id)
+            fail:
+              to: end
           transition:
             action:
               - data_to_form = {}
               - data_to_form['name'] = ocr(snapshot(head_rect.topright.offset_rect(0,-5, 120, 17)))
               - print('data_to_form:{}'.format(data_to_form))
               - click(head_rect.bottomright.offset(45,80))
-              - wait(0.5)
+              - wait(1)
         - id: 63
           name: 检测图片窗口
 #          check:
@@ -112,11 +121,14 @@ states:
             window:
               win_class: "ImagePreviewWnd"
               title: "图片查看"
-              fail_action: raise_error('没有找到图片查看窗口！')
               wait: 1
+            fail:
+              action: print('没找到图片查看窗口')
+              to: end
           transition:
             # 点击
             action:
+              - print('找到图片查看窗口，hwnd：{}'.format(find_result.hwnd))
               - form_rect = get_window_rect(find_result.hwnd)
               - print(wechat)
               - move(form_rect.center)
