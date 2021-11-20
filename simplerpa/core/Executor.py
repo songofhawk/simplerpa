@@ -1,6 +1,7 @@
 import time
 
 from simplerpa.core.Variable import Variable
+from simplerpa.core.action.ActionSystem import ActionSystem
 from simplerpa.core.data.Action import Action
 from simplerpa.core.action.ActionScreen import ActionScreen
 from simplerpa.core.const import STATE
@@ -104,7 +105,7 @@ class Executor:
         Action.call(transition.action)
 
         if transition.wait is not None:
-            time.sleep(transition.wait)
+            ActionSystem.wait(transition.wait)
 
         # 如果有子状态集，进入首选子状态
         # sub_states = transition.sub_states
