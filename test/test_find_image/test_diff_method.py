@@ -26,25 +26,20 @@ if __name__ == "__main__":
     img_src = cv2.imread(args.src)
     img_temp = cv2.imread(args.temp)
 
-    img_src_sobel = sobel(img_src)
-    cv2.imwrite('img_src_soble.png', img_src_sobel)
-    img_temp_sobel = sobel(img_temp)
-    cv2.imwrite('img_temp_soble.png', img_temp_sobel)
-
     # 载入灰度原图，并且归一化
 
-    result_list = ActionImage.find_all_template(img_src_sobel, img_temp_sobel, 0.8, auto_scale=(1.5, 1.9))
+    result_list = ActionImage.find_all_template(img_src, img_temp, 0.8, auto_scale=(1.5, 1.9))
     # 最终证明用特征点的方法查找logo类图标的效果不好，可能由于图像简单，特征点太少，无法匹配
     for index, result in enumerate(result_list):
-        rect = result['rectangle']
-        # print('result-{}: confidence-{}, scale-{}, priority-{}， {}'.format(index,
-        #                                                                    result.confidence if result is not None else None,
-        #                                                                    result.scale,
-        #                                                                    result.priority if hasattr(
-        #                                                                        result,
-        #                                                                        'priority') else None,
-        #                                                                    rect if result is not None else None))
-        cv2.rectangle(img_src, rect[0], rect[3], (0, 0, 220), 2)
+        rect = result.rect
+        print('result-{}: confidence-{}, scale-{}, priority-{}， {}'.format(index,
+                                                                           result.confidence if result is not None else None,
+                                                                           result.scale,
+                                                                           result.priority if hasattr(
+                                                                               result,
+                                                                               'priority') else None,
+                                                                           rect if result is not None else None))
+        cv2.rectangle(img_src, (rect.left, rect.top), (rect.right, rect.bottom), (0, 0, 220), 2)
 
     cv2.imwrite('result.png', img_src)
 
