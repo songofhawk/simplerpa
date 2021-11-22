@@ -5,7 +5,7 @@ from typing import Tuple, List
 import numpy as np
 from cnocr import CnOcr
 from cv2 import cv2
-import aircv as ac
+import simplerpa.aircv as ac
 # 话说网易游戏家也有个aircv，功能类似， 还提供了find_sift方法，使用sift算法查找，以后可以试试
 # https://github.com/NetEaseGame/aircv
 from simplerpa.core.data.ScreenRect import ScreenRect, Vector
@@ -96,7 +96,7 @@ class ActionImage:
 
     @classmethod
     def find_all_template(cls, image_current, image_template, min_confidence, auto_scale: Tuple[float, float] = None,
-                          scale: float = 1):
+                          scale: float = 1, bgremove=False):
         width = image_template.shape[1]
         height = image_template.shape[0]
         if scale == 1:
@@ -104,7 +104,7 @@ class ActionImage:
         else:
             resized = cv2.resize(image_template, (int(width * scale), int(height * scale)),
                                  interpolation=cv2.INTER_CUBIC)
-        match_results = ac.find_all_template(image_current, resized, min_confidence)
+        match_results = ac.find_all_template(image_current, resized, min_confidence, bgremove=bgremove)
 
         if match_results is None or len(match_results) == 0:
             if auto_scale is None:
@@ -115,7 +115,7 @@ class ActionImage:
                 for scale in np.arange(scale_min, scale_max, 0.1):
                     resized = cv2.resize(image_template, (int(width * scale), int(height * scale)),
                                          interpolation=cv2.INTER_CUBIC)
-                    match_results = ac.find_all_template(image_current, resized, min_confidence)
+                    match_results = ac.find_all_template(image_current, resized, min_confidence, bgremove=bgremove)
                     # print("try resize template to match: {}".format(scale))
                     if match_results is not None and len(match_results) > 0:
                         break
