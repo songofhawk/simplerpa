@@ -1,0 +1,110 @@
+name: "测试截图到剪贴板"
+ver: 0.1
+#screen_width: 3440
+#screen_height: 1440
+range: !rect l:0, r:1920, t:0, b:1080
+time_scale: 1
+states:
+  - name: "当前窗口"
+    id: 0
+    transition:
+      # 显示桌面的热键
+      action: hotkey('win', 'd')
+      wait: 1
+  - name: "桌面"
+    id: 10
+    find:
+      image:
+        snapshot: !rect l:0, r:800, t:0, b:600
+        template: auto_wemeeting/logo_wemeeting.png
+#        debug: True
+        fail_action: raise_error('找不到腾讯会议图标')
+    transition:
+      # 双击腾讯会议图标
+      action: dbclick(find_result.rect_on_screen.center_x, find_result.rect_on_screen.center_y)
+      wait: 3
+  - name: "腾讯会议主窗口"
+    id: 20
+    find:
+      window:
+        win_class: "TXGuiFoundation"
+        title: "腾讯会议"
+        fail_action: raise_error('没有找到腾讯会议窗口！')
+#        activate: True
+        wait: 1
+    transition:
+      # 点击
+      action:
+        - wemeet = get_window_rect(find_result.hwnd)
+        - print(wemeet)
+      wait: 1
+  - name: "腾讯会议主窗口-step2"
+    id: 30
+    find:
+      image:
+        snapshot: wemeet
+        template: auto_wemeeting/icon_pre.png
+        fail_action: raise_error('没有找到预定会议按钮！')
+#        activate: True
+        wait: 1
+    transition:
+      # 点击
+      action:
+        - arrow = find_result.rect_on_screen.bottomright.offset(8,-5)
+        - move(arrow)
+        - wait(1)
+        - click(arrow.offset(0,40))
+      wait: 1
+  - name: "预定会议窗口"
+    id: 40
+    find:
+      image:
+        snapshot: wemeet
+        template: auto_wemeeting/btn_confirm.png
+        fail_action: raise_error('没有找到预定确认按钮！')
+#        activate: True
+        wait: 1
+    transition:
+      # 点击
+      action:
+        - click(find_result.rect_on_screen.center)
+      wait: 3
+  - name: "会议二维码"
+    id: 50
+    action:
+      - snapshot_pil(wemeet, to_clipboard=True)
+    transition:
+      wait: 0.5
+  - name: "微信聊天窗口"
+    id: 60
+    find:
+      window:
+        win_class: "WeChatMainWndForPC"
+        title: "微信"
+        fail_action: raise_error('没有找到微信！')
+        activate: True
+        wait: 1
+    transition:
+      # 点击
+      action:
+        - wechat = get_window_rect(find_result.hwnd)
+        - print(wechat)
+      wait: 1
+  - name: "h+"
+    id: 70
+    find:
+      image:
+        template: auto_wemeeting/h+_title.png
+        snapshot: wechat
+        fail_action: raise_error('没找到h+聊天')
+    transition:
+      action:
+        - click(find_result.rect_on_screen.center)
+        - wait(1)
+        - hotkey('ctrl','v')
+        - wait(0.5)
+        - hotkey('enter')
+      to: end
+
+
+
