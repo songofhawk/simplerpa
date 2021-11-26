@@ -53,6 +53,7 @@ class Action(StateBlockBase):
         'print': print,
         'find_template': ActionImage.find_all_template,
         'snapshot': ActionScreen.snapshot_cv,
+        'snapshot_pil': ActionScreen.snapshot_pil,
         'log_image': ActionImage.log_image,
         'ScreenRect': ScreenRect,
         'wait': ActionSystem.wait,

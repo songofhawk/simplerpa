@@ -2,6 +2,9 @@ import win32api
 import pyautogui as autogui
 
 from simplerpa.core.action.ActionImage import ActionImage
+import win32clipboard as clip
+import win32con
+from io import BytesIO
 
 
 class ActionScreen:
@@ -24,20 +27,32 @@ class ActionScreen:
         win32api.ChangeDisplaySettings(dm, 0)
 
     @classmethod
-    def snapshot(cls, rect):
+    def snapshot(cls, rect=None, to_clipboard=False):
         """
         根据跟定的ScreenRect区域截图
         Args:
             rect: 遵从一般系统坐标系的矩形区域(左上角为0,0点), autogui和Pillow都适用
-
+            to_clipboard: 是否把截图copy到剪贴板
         Returns:
             返回PIL格式的指定区域截图
         """
         screen_shot = autogui.screenshot()
-        # rect = rect.swap_top_bottom()
-        crop_img = screen_shot.crop(
-            (int(float(rect.left)), int(float(rect.top)), int(float(rect.right)), int(float(rect.bottom))))
-        return crop_img
+        ret_image = screen_shot
+        if rect is not None:
+            ret_image = screen_shot.crop(
+                (int(float(rect.left)), int(float(rect.top)), int(float(rect.right)), int(float(rect.bottom))))
+
+        if to_clipboard:
+            output = BytesIO()
+            ret_image.convert('RGB').save(output, 'BMP')
+            data = output.getvalue()[14:]
+            output.close()
+            clip.OpenClipboard()
+            clip.EmptyClipboard()
+            clip.SetClipboardData(win32con.CF_DIB, data)
+            clip.CloseClipboard()
+
+        return ret_image
 
     @classmethod
     def snapshot_cv(cls, rect):
@@ -51,6 +66,10 @@ class ActionScreen:
         """
         pil_image = cls.snapshot(rect)
         return ActionImage.pil_to_cv(pil_image)
+
+    @classmethod
+    def snapshot_pil(cls, rect=None, to_clipboard=False):
+        return cls.snapshot(rect, to_clipboard)
 
     @staticmethod
     def pick_color(x, y):
