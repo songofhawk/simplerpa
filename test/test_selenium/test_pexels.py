@@ -22,15 +22,18 @@ with webdriver.Chrome() as driver:
 
     driver.get("https://www.pexels.com/videos/")
     results = driver.find_elements(By.CSS_SELECTOR,
-                                   "div.photos>div.photos__column>div>article>a.js-photo-link>video.photo-item__video>source")
+                                   "div.photos>div.photos__column>div>article")
     times = 0
     for ele in results:
-        url = ele.get_attribute('src')
+        source_ele = ele.find_element(By.CSS_SELECTOR,
+                                       "a.js-photo-link>video.photo-item__video>source")
+
+        url = source_ele.get_attribute('src')
         print(url)
         name = re.search(exp, url).group(1)
         print(name)
         wget.download(url, name)
-        if times >= 4:
+        if times >= 0:
             break
         times += 1
         # # driver.get(ele.get_attribute('src'))
