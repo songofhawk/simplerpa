@@ -133,3 +133,4 @@ log/*
 
 /simplerpa/result.xlsx
 /simplerpa/result.csv
+/test/test_selenium/*.mp4
