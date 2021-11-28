@@ -8,7 +8,7 @@ certifi==2021.5.30
 chardet==4.0.0
 charset-normalizer==2.0.6
 click==8.0.1
-cnocr==2.0.1
+cnocr>=2.1.0
 colorama==0.4.4
 fsspec==2021.9.0
 future==0.18.2
@@ -20,11 +20,11 @@ importlib-metadata==4.8.1
 Markdown==3.3.4
 MouseInfo==0.1.3
 multidict==5.1.0
-numpy==1.21.2
+numpy>=1.21.4
 oauthlib==3.1.1
-opencv-python==4.5.3.56
+opencv-python>=4.5.4.60
 packaging==21.0
-Pillow==8.3.2
+Pillow>=8.4.0
 protobuf==3.18.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
@@ -39,7 +39,7 @@ PyRect==0.1.4
 PyScreeze==0.1.28
 pytorch-lightning==1.4.8
 pytweening==1.0.4
-pywin32==301
+pywin32>=302
 PyYAML==5.4.1
 requests==2.26.0
 requests-oauthlib==1.3.0
@@ -61,3 +61,5 @@ yarl==1.6.3
 zipp==3.5.1
 
 pandas~=1.3.4
+selenium>=4.1.0
+wget>=3.2
