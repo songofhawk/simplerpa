@@ -9,6 +9,12 @@ _url_tempfiles = []
 
 
 def urlretrieve(req, filename=None, reporthook=None, data=None):
+    if isinstance(req, str):
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
+        url = req
+        req = Request(url=url, headers=headers)
+
     with contextlib.closing(request.urlopen(req, data)) as fp:
         headers = fp.info()
 
@@ -53,10 +59,7 @@ def urlretrieve(req, filename=None, reporthook=None, data=None):
     return result
 
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
-url = "https://images.pexels.com/videos/9917770/camp-sky-sunrise-sunset-9917770.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-req = Request(url=url, headers=headers)
-urlretrieve(
-    req,
-    "./9917770.jpeg")
+if __name__ == '__main__':
+    urlretrieve(
+        "https://images.pexels.com/videos/9917770/camp-sky-sunrise-sunset-9917770.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+        "./9917770.jpeg")
