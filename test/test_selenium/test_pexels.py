@@ -1,3 +1,4 @@
+import os
 import re
 import time
 
@@ -29,7 +30,6 @@ if __name__ == '__main__':
             print(img_url)
             img_name = re.search(exp_img, img_url).group(1)
             print(img_name)
-            download.urlretrieve(img_url, img_name)
 
             source_ele = ele.find_element(By.CSS_SELECTOR,
                                           "a.js-photo-link>video.photo-item__video>source")
@@ -39,10 +39,15 @@ if __name__ == '__main__':
 
             video_name = re.search(exp_video, video_url).group(1)
             print(video_name)
+
+            if os.path.exists(video_name):
+                continue
+
+            download.urlretrieve(img_url, img_name)
             wget.download(video_url, video_name)
 
             df = df.append({'title': title, 'img_name': img_name, 'video_name': video_name}, ignore_index=True)
-            if times >= 0:
+            if times >= 3:
                 break
             times += 1
             # # driver.get(ele.get_attribute('src'))
