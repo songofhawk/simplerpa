@@ -28,13 +28,15 @@ def get_options_from_command_line():
 
     if args:
         print("parsing arguments: {}".format(args))
-    return Option(args.output_dir, args.result_file)
+    return Option(args.output_dir, args.result_file, int(args.limit))
 
 
 if __name__ == '__main__':
     # 获取命令行参数
     option = get_options_from_command_line()
 
+    if not os.path.exists(option.output_dir):
+        os.mkdir(option.output_dir)
     # 设置从url中获取名字的正则表达式
     exp_img = re.compile(r'videos/\d+/(.*?)\?')
     exp_video = re.compile(r'external/(.*?)\?')
@@ -80,14 +82,24 @@ if __name__ == '__main__':
             # 下载对应的图片和视频文件
             # 这里之所以用不同方式下载，是因为wget是最简洁稳定的方式，还能显示进度，但它不支持伪装user-agent
             # 而图片的目标网站拒绝自动机器人下载
-            download.urlretrieve(img_url, option.output_dir + img_name)
-            wget.download(video_url, option.output_dir + video_name)
+            try:
+                download.urlretrieve(img_url, option.output_dir + img_name)
+            except Exception as e:
+                print('下载图片"{}"异常：{}'.format(img_url, e))
+                continue
+
+            try:
+                wget.download(video_url, option.output_dir + video_name)
+            except Exception as e:
+                print('下载视频"{}"异常：{}'.format(video_url, e))
+                continue
+
             # 新增1条数据记录
             df = df.append({'title': title, 'img_name': img_name, 'video_name': video_name}, ignore_index=True)
             # 检查数据上限
+            times += 1
             if times >= option.limit:
                 break
-            times += 1
             # # driver.get(ele.get_attribute('src'))
             time.sleep(0.5)
         # 保存数据文件
