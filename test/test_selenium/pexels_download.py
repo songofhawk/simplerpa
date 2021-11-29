@@ -41,15 +41,23 @@ if __name__ == '__main__':
     exp_img = re.compile(r'videos/\d+/(.*?)\?')
     exp_video = re.compile(r'external/(.*?)\?')
 
-    with webdriver.Chrome() as driver:
+    web_options = webdriver.ChromeOptions()
+    web_options.add_argument("--enable-javascript")
+    # web_options.add_argument('--always-authorize-plugins=true')
+    with webdriver.Chrome(options=web_options) as driver:
         # with webdriver.Chrome(chrome_options=options) as driver:
         wait = WebDriverWait(driver, 10)
 
         # 访问首页
         driver.get("https://www.pexels.com/videos/")
         # 获取所有视频描述节点
-        results = driver.find_elements(By.CSS_SELECTOR,
-                                       "div.photos>div.photos__column>div>article")
+        results = []
+        while len(results) < option.limit:
+            results = driver.find_elements(By.CSS_SELECTOR,
+                                           "div.photos>div.photos__column>div>article")
+            driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+            time.sleep(5)
+
         times = 0
         # 准备数据表
         df = pd.DataFrame(columns=['title', 'img_name', 'video_name'])
