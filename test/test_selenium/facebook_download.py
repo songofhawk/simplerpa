@@ -38,8 +38,8 @@ if __name__ == '__main__':
     if not os.path.exists(option.output_dir):
         os.mkdir(option.output_dir)
     # 设置从url中获取名字的正则表达式
-    exp_img = re.compile(r'videos/\d+/(.*?)\?')
-    exp_video = re.compile(r'external/(.*?)\?')
+    exp_img = re.compile(r'v/.+?/(.*?)\?')
+    exp_video = re.compile(r'v/.+?/(.*?)\?')
 
     web_options = webdriver.ChromeOptions()
     web_options.add_argument("--enable-javascript")
@@ -49,12 +49,13 @@ if __name__ == '__main__':
         wait = WebDriverWait(driver, 10)
 
         # 访问首页
-        driver.get("https://www.pexels.com/videos/")
+        driver.get(
+            "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=clothing&sort_data[direction]=desc&sort_data[mode]=relevancy_monthly_grouped&start_date[min]=2021-11-25&start_date[max]=2021-11-26&search_type=keyword_unordered&media_type=video")
         # 获取所有视频描述节点
         results = []
         while len(results) < option.limit:
             results = driver.find_elements(By.CSS_SELECTOR,
-                                           "div.photos>div.photos__column>div>article")
+                                           "div._99s5")
             driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
             time.sleep(5)
 
@@ -62,25 +63,32 @@ if __name__ == '__main__':
         # 准备数据表
         df = pd.DataFrame(columns=['title', 'img_name', 'video_name'])
         for ele in results:
-            title = ele.get_attribute('data-meta-title')
+            ele_item = ele.find_element(By.CSS_SELECTOR, "div.iajz466s div._7jyg")
+
+            # 获取标题节点
+            title_item = ele_item.find_element(By.CSS_SELECTOR,
+                                       "div._8nsi a.aa8h9o0m>span.a53abz89")
+            title = title_item.text
             print(title)
 
-            # 获取图片节点
-            img_ele = ele.find_element(By.CSS_SELECTOR,
-                                       "a.js-photo-link>img.photo-item__img")
-            img_url = img_ele.get_attribute('src')
+            # 获取描述节点
+            desc_item = ele_item.find_element(By.CSS_SELECTOR,
+                                       "div._7jyr>span div._4ik4>div")
+            desc = desc_item.text
+
+            # 获取视频图片节点
+            video_item = ele_item.find_element(By.CSS_SELECTOR,
+                                              "div._8o0a>video")
+            img_url = video_item.get_attribute('poster')
             # print(img_url)
             img_name = re.search(exp_img, img_url).group(1)
             print(img_name)
 
-            # 这里是最终是视频节点
-            source_ele = ele.find_element(By.CSS_SELECTOR,
-                                          "a.js-photo-link>video.photo-item__video>source")
-
-            video_url = source_ele.get_attribute('src')
+            video_url = video_item.get_attribute('src')
             # print(video_url)
 
-            video_name = re.search(exp_video, video_url).group(1)
+            video_name = re.search(exp_video, video_url).group(1)+'mp4'
+            # 网站给出的视频文件没有扩展名，这里随便加一个，应该就可以播放了
             print(video_name)
 
             if os.path.exists(option.output_dir + video_name):
@@ -88,10 +96,8 @@ if __name__ == '__main__':
                 continue
 
             # 下载对应的图片和视频文件
-            # 这里之所以用不同方式下载，是因为wget是最简洁稳定的方式，还能显示进度，但它不支持伪装user-agent
-            # 而图片的目标网站拒绝自动机器人下载
             try:
-                download.urlretrieve(img_url, option.output_dir + img_name)
+                wget.download(img_url, option.output_dir + img_name)
             except Exception as e:
                 print('下载图片"{}"异常：{}'.format(img_url, e))
                 continue

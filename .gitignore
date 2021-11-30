@@ -138,3 +138,4 @@ log/*
 /test/test_selenium/*.csv
 /test/test_selenium/output/
 /test/test_selenium/*.zip
+/test/test_selenium/*.jpg
