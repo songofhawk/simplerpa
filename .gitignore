@@ -139,3 +139,4 @@ log/*
 /test/test_selenium/output/
 /test/test_selenium/*.zip
 /test/test_selenium/*.jpg
+/test/test_selenium/facebook/

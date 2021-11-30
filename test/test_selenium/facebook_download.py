@@ -61,24 +61,25 @@ if __name__ == '__main__':
 
         times = 0
         # 准备数据表
-        df = pd.DataFrame(columns=['title', 'img_name', 'video_name'])
+        columns = ['title', 'img_name', 'video_name', 'desc']
+        df = pd.DataFrame(columns=columns)
         for ele in results:
             ele_item = ele.find_element(By.CSS_SELECTOR, "div.iajz466s div._7jyg")
 
             # 获取标题节点
             title_item = ele_item.find_element(By.CSS_SELECTOR,
-                                       "div._8nsi a.aa8h9o0m>span.a53abz89")
+                                               "div._8nsi a.aa8h9o0m>span.a53abz89")
             title = title_item.text
             print(title)
 
             # 获取描述节点
             desc_item = ele_item.find_element(By.CSS_SELECTOR,
-                                       "div._7jyr>span div._4ik4>div")
+                                              "div._7jyr>span div._4ik4>div")
             desc = desc_item.text
 
             # 获取视频图片节点
             video_item = ele_item.find_element(By.CSS_SELECTOR,
-                                              "div._8o0a>video")
+                                               "div._8o0a>video")
             img_url = video_item.get_attribute('poster')
             # print(img_url)
             img_name = re.search(exp_img, img_url).group(1)
@@ -87,7 +88,7 @@ if __name__ == '__main__':
             video_url = video_item.get_attribute('src')
             # print(video_url)
 
-            video_name = re.search(exp_video, video_url).group(1)+'mp4'
+            video_name = re.search(exp_video, video_url).group(1) + 'mp4'
             # 网站给出的视频文件没有扩展名，这里随便加一个，应该就可以播放了
             print(video_name)
 
@@ -109,7 +110,8 @@ if __name__ == '__main__':
                 continue
 
             # 新增1条数据记录
-            df = df.append({'title': title, 'img_name': img_name, 'video_name': video_name}, ignore_index=True)
+            df = df.append({'title': title, 'img_name': img_name, 'video_name': video_name, 'desc': desc},
+                           ignore_index=True)
             # 检查数据上限
             times += 1
             if times >= option.limit:
