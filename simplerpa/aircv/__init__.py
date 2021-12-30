@@ -189,7 +189,6 @@ def find_all_template(im_source, im_search, threshold=0.5, maxcnt=0, rgb=False, 
         cv2.floodFill(res, None, max_loc, (-1000,), max_val - threshold + 0.1, 1, flags=cv2.FLOODFILL_FIXED_RANGE)
     return result
 
-
 def _sift_instance(edge_threshold=100):
     return cv2.SIFT_create(edgeThreshold=edge_threshold)
     # if hasattr(cv2, 'SIFT'):
