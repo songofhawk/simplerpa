@@ -41,6 +41,7 @@ ref: <http://docs.opencv.org/modules/imgproc/doc/geometric_transformations.html#
     croped = img[y0:y1, x0:x1]
 
 '''
+import time
 
 import cv2
 import numpy as np
@@ -164,6 +165,7 @@ def find_all_template(im_source, im_search, threshold=0.5, maxcnt=0, rgb=False, 
 
     w, h = im_search.shape[1], im_search.shape[0]
 
+    start_time = time.time()
     result = []
     while True:
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
@@ -187,6 +189,8 @@ def find_all_template(im_source, im_search, threshold=0.5, maxcnt=0, rgb=False, 
             break
         # floodfill the already found area
         cv2.floodFill(res, None, max_loc, (-1000,), max_val - threshold + 0.1, 1, flags=cv2.FLOODFILL_FIXED_RANGE)
+    print("find max time: {}".format(time.time() - start_time))
+
     return result
 
 def _sift_instance(edge_threshold=100):

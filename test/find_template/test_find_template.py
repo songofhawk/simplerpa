@@ -2,12 +2,16 @@ import simplerpa.aircv as ac
 from cv2 import cv2
 import time
 
-image_origin = cv2.imread('seg_course_menu_long.png')
+from find_all_template import find_all_template_v2, find_all_template_v1
+
+image_origin = cv2.imread('seg_course_whole_page.png')
 image_template = cv2.imread('seg_sharp.png')
 
 start_time = time.time()
-match_results = ac.find_all_template(image_origin, image_template, 0.8)
-print(time.time() - start_time)
+match_results = ac.find_all_template(image_origin, image_template, 0.5)
+# match_results = find_all_template_v2(image_origin, image_template, 0.5, 50)
+# match_results = find_all_template_v1(image_origin, image_template, 0.5, 50)
+print("total time: {}".format(time.time() - start_time))
 
 img_result = image_origin.copy()
 for match_result in match_results:
