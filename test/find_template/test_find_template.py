@@ -8,9 +8,9 @@ image_origin = cv2.imread('seg_course_whole_page.png')
 image_template = cv2.imread('seg_sharp.png')
 
 start_time = time.time()
-match_results = ac.find_all_template(image_origin, image_template, 0.5)
+# match_results = ac.find_all_template(image_origin, image_template, 0.5)
 # match_results = find_all_template_v2(image_origin, image_template, 0.5, 50)
-# match_results = find_all_template_v1(image_origin, image_template, 0.5, 50)
+match_results = find_all_template_v1(image_origin, image_template, 0.5, 50, debug=True)
 print("total time: {}".format(time.time() - start_time))
 
 img_result = image_origin.copy()
